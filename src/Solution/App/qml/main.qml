@@ -32,11 +32,15 @@ ApplicationWindow {
         RowLayout {
             ToolButton {
                 text: qsTr("Export map")
+                onClicked: {
+                    monitorForm.exportMapImage();
+                }
             }
         }
     }
 
     GEOINTMonitorForm {
+        id: monitorForm
         anchors.fill: parent
     }
 }

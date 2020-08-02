@@ -23,7 +23,9 @@ class MapQuickView;
 }
 }
 
+#include <QImage>
 #include <QObject>
+#include <QUuid>
 
 class GEOINTMonitor : public QObject
 {
@@ -35,10 +37,15 @@ public:
     explicit GEOINTMonitor(QObject* parent = nullptr);
     ~GEOINTMonitor() override;
 
+    Q_INVOKABLE void exportMapImage() const;
+
 signals:
     void mapViewChanged();
 
-private:
+private slots:
+    void exportMapImageCompleted(QUuid taskId, QImage image);
+
+private:    
     Esri::ArcGISRuntime::MapQuickView* mapView() const;
     void setMapView(Esri::ArcGISRuntime::MapQuickView* mapView);
 

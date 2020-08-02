@@ -17,6 +17,7 @@
 #include "Map.h"
 #include "MapQuickView.h"
 
+#include <QDir>
 #include <QUrl>
 
 using namespace Esri::ArcGISRuntime;
@@ -46,6 +47,32 @@ void GEOINTMonitor::setMapView(MapQuickView* mapView)
 
     m_mapView = mapView;
     m_mapView->setMap(m_map);
+    connect(m_mapView, &MapQuickView::exportImageCompleted, this, &GEOINTMonitor::exportMapImageCompleted);
 
     emit mapViewChanged();
+}
+
+void GEOINTMonitor::exportMapImage() const
+{
+    if (!m_mapView)
+    {
+        return;
+    }
+
+    m_mapView->exportImage();
+}
+
+void GEOINTMonitor::exportMapImageCompleted(QUuid taskId, QImage image)
+{
+    Q_UNUSED(taskId);
+
+    QDateTime now = QDateTime::currentDateTime();
+    QString nowAsString = now.toString("yyyy-MM-dd_HH.mm.ss");
+    QString fileName = "GEOINT-Monitor_" + nowAsString + ".png";
+    QDir imageDir = QDir::temp();
+    QString absoluteFileName = imageDir.absoluteFilePath(fileName);
+    if (image.save(absoluteFileName))
+    {
+        // TODO: Emit map image exported!
+    }
 }

@@ -17,6 +17,10 @@ import Esri.GEOINTMonitor 1.0
 
 Item {
 
+    function exportMapImage() {
+        model.exportMapImage();
+    }
+
     // Create MapQuickView here, and create its Map etc. in C++ code
     MapView {
         id: view
