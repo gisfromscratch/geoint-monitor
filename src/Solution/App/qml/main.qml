@@ -12,12 +12,21 @@
 //
 
 import QtQuick.Controls 2.2
+import QtQuick.Layouts 1.11
 import Esri.GEOINTMonitor 1.0
 
 ApplicationWindow {
     visible: true
     width: 800
     height: 600
+
+    header: ToolBar {
+        RowLayout {
+            ToolButton {
+                text: qsTr("Export map")
+            }
+        }
+    }
 
     GEOINTMonitorForm {
         anchors.fill: parent
