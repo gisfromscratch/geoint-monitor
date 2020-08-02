@@ -24,6 +24,7 @@
 #include <QDir>
 #include <QGuiApplication>
 #include <QMessageBox>
+#include <QProcessEnvironment>
 #include <QSettings>
 #include <QQmlApplicationEngine>
 
@@ -58,7 +59,13 @@ int main(int argc, char *argv[])
     // Before initializing ArcGIS Runtime, first set the
     // ArcGIS Runtime license setting required for your application.
 
-    // ArcGISRuntimeEnvironment::setLicense("Place license string in here");
+    QString licenseKeyName = "arcgisruntime.license.key";
+    QProcessEnvironment systemEnvironment = QProcessEnvironment::systemEnvironment();
+    if (systemEnvironment.contains(licenseKeyName))
+    {
+        QString licenseKeyValue = systemEnvironment.value(licenseKeyName);
+        ArcGISRuntimeEnvironment::setLicense(licenseKeyValue);
+    }
 
     //  use this code to check for initialization errors
     //  QObject::connect(ArcGISRuntimeEnvironment::instance(), &ArcGISRuntimeEnvironment::errorOccurred, [](const Error& error){
