@@ -52,6 +52,11 @@ void GEOINTMonitor::setMapView(MapQuickView* mapView)
     emit mapViewChanged();
 }
 
+QString GEOINTMonitor::lastMapImageFilePath() const
+{
+    return m_lastMapImageFilePath;
+}
+
 void GEOINTMonitor::exportMapImage() const
 {
     if (!m_mapView)
@@ -73,6 +78,8 @@ void GEOINTMonitor::exportMapImageCompleted(QUuid taskId, QImage image)
     QString absoluteFileName = imageDir.absoluteFilePath(fileName);
     if (image.save(absoluteFileName))
     {
-        // TODO: Emit map image exported!
+        // Emit map image exported
+        m_lastMapImageFilePath = absoluteFileName;
+        emit mapImageExported();
     }
 }

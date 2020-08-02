@@ -32,6 +32,7 @@ class GEOINTMonitor : public QObject
     Q_OBJECT
 
     Q_PROPERTY(Esri::ArcGISRuntime::MapQuickView* mapView READ mapView WRITE setMapView NOTIFY mapViewChanged)
+    Q_PROPERTY(QString lastMapImageFilePath READ lastMapImageFilePath NOTIFY mapImageExported)
 
 public:
     explicit GEOINTMonitor(QObject* parent = nullptr);
@@ -40,6 +41,7 @@ public:
     Q_INVOKABLE void exportMapImage() const;
 
 signals:
+    void mapImageExported();
     void mapViewChanged();
 
 private slots:
@@ -49,8 +51,11 @@ private:
     Esri::ArcGISRuntime::MapQuickView* mapView() const;
     void setMapView(Esri::ArcGISRuntime::MapQuickView* mapView);
 
+    QString lastMapImageFilePath() const;
+
     Esri::ArcGISRuntime::Map* m_map = nullptr;
     Esri::ArcGISRuntime::MapQuickView* m_mapView = nullptr;
+    QString m_lastMapImageFilePath;
 };
 
 #endif // GEOINTMONITOR_H

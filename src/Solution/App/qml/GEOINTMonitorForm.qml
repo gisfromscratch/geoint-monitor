@@ -16,10 +16,13 @@ import QtQuick.Controls 2.2
 import Esri.GEOINTMonitor 1.0
 
 Item {
+    id: mapForm
 
     function exportMapImage() {
         model.exportMapImage();
     }
+
+    signal mapNotification(string message)
 
     // Create MapQuickView here, and create its Map etc. in C++ code
     MapView {
@@ -33,5 +36,8 @@ Item {
     GEOINTMonitor {
         id: model
         mapView: view
+        onMapImageExported: {
+            mapForm.mapNotification(model.lastMapImageFilePath);
+        }
     }
 }
