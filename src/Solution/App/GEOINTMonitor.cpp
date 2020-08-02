@@ -17,6 +17,8 @@
 #include "Map.h"
 #include "MapQuickView.h"
 
+#include "GdeltEventLayer.h"
+
 #include <QDir>
 #include <QUrl>
 
@@ -24,7 +26,8 @@ using namespace Esri::ArcGISRuntime;
 
 GEOINTMonitor::GEOINTMonitor(QObject* parent /* = nullptr */):
     QObject(parent),
-    m_map(new Map(Basemap::openStreetMap(this), this))
+    m_map(new Map(Basemap::openStreetMap(this), this)),
+    m_gdeltLayer(new GdeltEventLayer(this))
 {
 }
 
@@ -65,6 +68,11 @@ void GEOINTMonitor::exportMapImage() const
     }
 
     m_mapView->exportImage();
+}
+
+void GEOINTMonitor::queryGdelt() const
+{
+    m_gdeltLayer->query();
 }
 
 void GEOINTMonitor::exportMapImageCompleted(QUuid taskId, QImage image)

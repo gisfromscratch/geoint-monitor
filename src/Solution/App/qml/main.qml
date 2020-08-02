@@ -39,6 +39,13 @@ ApplicationWindow {
                     monitorForm.exportMapImage();
                 }
             }
+
+            ToolButton {
+                text: qsTr("Query GDELT")
+                onClicked: {
+                    monitorForm.queryGdelt();
+                }
+            }
         }
     }
 

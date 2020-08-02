@@ -40,7 +40,7 @@ void GdeltEventLayer::setQueryFilter(const QString &filter)
 void GdeltEventLayer::query()
 {
     // TODO: Update the base url using the query filter
-    QUrl gdeltQueryUrl("https://api.gdeltproject.org/api/v2/doc/doc?query=%22climate%20change%22&mode=artgallery");
+    QUrl gdeltQueryUrl("https://api.gdeltproject.org/api/v2/doc/doc?query=%22climate%20change%22&format=json");
 
     QNetworkRequest gdeltRequest;
     gdeltRequest.setUrl(gdeltQueryUrl);

@@ -22,6 +22,10 @@ Item {
         model.exportMapImage();
     }
 
+    function queryGdelt() {
+        model.queryGdelt();
+    }
+
     signal mapNotification(string message)
 
     // Create MapQuickView here, and create its Map etc. in C++ code

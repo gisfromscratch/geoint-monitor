@@ -23,6 +23,8 @@ class MapQuickView;
 }
 }
 
+class GdeltEventLayer;
+
 #include <QImage>
 #include <QObject>
 #include <QUuid>
@@ -39,6 +41,7 @@ public:
     ~GEOINTMonitor() override;
 
     Q_INVOKABLE void exportMapImage() const;
+    Q_INVOKABLE void queryGdelt() const;
 
 signals:
     void mapImageExported();
@@ -56,6 +59,8 @@ private:
     Esri::ArcGISRuntime::Map* m_map = nullptr;
     Esri::ArcGISRuntime::MapQuickView* m_mapView = nullptr;
     QString m_lastMapImageFilePath;
+
+    GdeltEventLayer* m_gdeltLayer = nullptr;
 };
 
 #endif // GEOINTMONITOR_H
