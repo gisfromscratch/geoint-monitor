@@ -1,8 +1,10 @@
 HEADERS += \
+    $$PWD/GdeltEventLayer.h \
     AppInfo.h \
     GEOINTMonitor.h
 
 SOURCES += \
+    $$PWD/GdeltEventLayer.cpp \
     main.cpp \
     GEOINTMonitor.cpp
 

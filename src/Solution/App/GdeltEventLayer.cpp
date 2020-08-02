@@ -23,7 +23,38 @@
 //
 #include "GdeltEventLayer.h"
 
-GdeltEventLayer::GdeltEventLayer(QObject *parent) : QObject(parent)
-{
+#include <QNetworkReply>
 
+GdeltEventLayer::GdeltEventLayer(QObject *parent) :
+    QObject(parent),
+    m_networkAccessManager(new QNetworkAccessManager(this))
+{
+    connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &GdeltEventLayer::networkRequestFinished);
+}
+
+void GdeltEventLayer::setQueryFilter(const QString &filter)
+{
+    m_queryFilter = filter;
+}
+
+void GdeltEventLayer::query()
+{
+    // TODO: Update the base url using the query filter
+    QUrl gdeltQueryUrl("https://api.gdeltproject.org/api/v2/doc/doc?query=%22climate%20change%22&mode=artgallery");
+
+    QNetworkRequest gdeltRequest;
+    gdeltRequest.setUrl(gdeltQueryUrl);
+    m_networkAccessManager->get(gdeltRequest);
+}
+
+void GdeltEventLayer::networkRequestFinished(QNetworkReply* reply)
+{
+    if (reply->error())
+    {
+        qDebug() << reply->errorString();
+        return;
+    }
+
+    QString responseText = reply->readAll();
+    qDebug() << responseText;
 }

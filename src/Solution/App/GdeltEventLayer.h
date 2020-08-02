@@ -24,6 +24,9 @@
 #ifndef GDELTEVENTLAYER_H
 #define GDELTEVENTLAYER_H
 
+class QNetworkReply;
+
+#include <QNetworkAccessManager>
 #include <QObject>
 
 class GdeltEventLayer : public QObject
@@ -32,7 +35,18 @@ class GdeltEventLayer : public QObject
 public:
     explicit GdeltEventLayer(QObject *parent = nullptr);
 
+    void setQueryFilter(const QString& filter);
+
+    void query();
+
 signals:
+
+private slots:
+    void networkRequestFinished(QNetworkReply* reply);
+
+private:
+    QNetworkAccessManager* m_networkAccessManager = nullptr;
+    QString m_queryFilter;
 
 };
 
