@@ -27,6 +27,7 @@
 #include <QProcessEnvironment>
 #include <QSettings>
 #include <QQmlApplicationEngine>
+#include <QQuickStyle>
 
 //------------------------------------------------------------------------------
 
@@ -85,6 +86,9 @@ int main(int argc, char *argv[])
 
     // Register the GEOINTMonitor (QQuickItem) for QML
     qmlRegisterType<GEOINTMonitor>("Esri.GEOINTMonitor", 1, 0, "GEOINTMonitor");
+
+    // Activate the styling
+    QQuickStyle::setStyle("Material");
 
     // Initialize application view
     QQmlApplicationEngine engine;
