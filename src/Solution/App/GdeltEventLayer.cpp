@@ -23,7 +23,12 @@
 //
 #include "GdeltEventLayer.h"
 
+#include "FeatureCollectionTable.h"
+
+#include <QJsonDocument>
 #include <QNetworkReply>
+
+using namespace Esri::ArcGISRuntime;
 
 GdeltEventLayer::GdeltEventLayer(QObject *parent) :
     QObject(parent),
@@ -40,7 +45,7 @@ void GdeltEventLayer::setQueryFilter(const QString &filter)
 void GdeltEventLayer::query()
 {
     // TODO: Update the base url using the query filter
-    QUrl gdeltQueryUrl("https://api.gdeltproject.org/api/v2/doc/doc?query=%22climate%20change%22&format=json");
+    QUrl gdeltQueryUrl("https://api.gdeltproject.org/api/v2/geo/geo?query=%22climate%20change%22&format=geojson");
 
     QNetworkRequest gdeltRequest;
     gdeltRequest.setUrl(gdeltQueryUrl);
@@ -55,6 +60,23 @@ void GdeltEventLayer::networkRequestFinished(QNetworkReply* reply)
         return;
     }
 
-    QString responseText = reply->readAll();
-    qDebug() << responseText;
+    QByteArray jsonResponse = reply->readAll();
+    QJsonDocument gdeltEventsDocument = QJsonDocument::fromJson(jsonResponse);
+    if (gdeltEventsDocument.isNull())
+    {
+        qDebug() << "JSON is invalid!";
+        return;
+    }
+}
+
+FeatureCollectionTable* GdeltEventLayer::createTable()
+{
+    QList<Field> gdeltFields;
+    Domain emptyDomain;
+    Field nameField(FieldType::Text, "name", "name", 1024, emptyDomain, true, true);
+    gdeltFields.append(nameField);
+    Field countField(FieldType::Int32, "count", "count", 0, emptyDomain, true, true);
+    gdeltFields.append(countField);
+    FeatureCollectionTable* newTable = new FeatureCollectionTable(gdeltFields, GeometryType::Point, SpatialReference::wgs84(), this);
+    return newTable;
 }

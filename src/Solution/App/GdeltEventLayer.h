@@ -24,6 +24,14 @@
 #ifndef GDELTEVENTLAYER_H
 #define GDELTEVENTLAYER_H
 
+namespace Esri
+{
+namespace ArcGISRuntime
+{
+class FeatureCollectionTable;
+}
+}
+
 class QNetworkReply;
 
 #include <QNetworkAccessManager>
@@ -45,6 +53,8 @@ private slots:
     void networkRequestFinished(QNetworkReply* reply);
 
 private:
+    Esri::ArcGISRuntime::FeatureCollectionTable* createTable();
+
     QNetworkAccessManager* m_networkAccessManager = nullptr;
     QString m_queryFilter;
 
