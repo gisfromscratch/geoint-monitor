@@ -29,6 +29,7 @@ namespace Esri
 namespace ArcGISRuntime
 {
 class FeatureCollectionTable;
+class GraphicsOverlay;
 }
 }
 
@@ -45,6 +46,8 @@ public:
 
     void setQueryFilter(const QString& filter);
 
+    Esri::ArcGISRuntime::GraphicsOverlay* overlay() const;
+
     void query();
 
 signals:
@@ -56,6 +59,7 @@ private:
     Esri::ArcGISRuntime::FeatureCollectionTable* createTable();
 
     QNetworkAccessManager* m_networkAccessManager = nullptr;
+    Esri::ArcGISRuntime::GraphicsOverlay* m_overlay = nullptr;
     QString m_queryFilter;
 
 };

@@ -24,7 +24,12 @@
 #include "GdeltEventLayer.h"
 
 #include "FeatureCollectionTable.h"
+#include "Graphic.h"
+#include "GraphicsOverlay.h"
+#include "SimpleMarkerSymbol.h"
+#include "SimpleRenderer.h"
 
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QNetworkReply>
 
@@ -32,14 +37,25 @@ using namespace Esri::ArcGISRuntime;
 
 GdeltEventLayer::GdeltEventLayer(QObject *parent) :
     QObject(parent),
-    m_networkAccessManager(new QNetworkAccessManager(this))
+    m_networkAccessManager(new QNetworkAccessManager(this)),
+    m_overlay(new GraphicsOverlay(this))
 {
     connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &GdeltEventLayer::networkRequestFinished);
+
+    SimpleRenderer* gdeltRenderer = new SimpleRenderer(this);
+    SimpleMarkerSymbol* gdeltSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, Qt::black, 5, this);
+    gdeltRenderer->setSymbol(gdeltSymbol);
+    m_overlay->setRenderer(gdeltRenderer);
 }
 
 void GdeltEventLayer::setQueryFilter(const QString &filter)
 {
     m_queryFilter = filter;
+}
+
+GraphicsOverlay* GdeltEventLayer::overlay() const
+{
+    return m_overlay;
 }
 
 void GdeltEventLayer::query()
@@ -74,7 +90,39 @@ void GdeltEventLayer::networkRequestFinished(QNetworkReply* reply)
     }
 
     QJsonObject gdeltEventsObject = gdeltEventsDocument.object();
+    QJsonArray gdeltFeaturesArray = gdeltEventsObject["features"].toArray();
+    foreach (const QJsonValue& featureValue, gdeltFeaturesArray)
+    {
+        if (featureValue.isObject())
+        {
+            QJsonObject gdeltFeature = featureValue.toObject();
+            QJsonObject gdeltFeatureGeometry = gdeltFeature["geometry"].toObject();
+            QJsonValue geometryTypeValue = gdeltFeatureGeometry["type"];
+            if (geometryTypeValue.isString())
+            {
+                QString geometryType = geometryTypeValue.toString();
+                if (0 == QString::compare("Point", geometryType))
+                {
+                    QJsonValue coordinatesValue = gdeltFeatureGeometry["coordinates"];
+                    if (coordinatesValue.isArray())
+                    {
+                        QJsonArray coordinatesArray = coordinatesValue.toArray();
+                        if (1 < coordinatesArray.count())
+                        {
+                            double x = coordinatesArray[0].toDouble();
+                            double y = coordinatesArray[1].toDouble();
+                            QJsonObject properties = gdeltFeature["properties"].toObject();
+                            QVariantMap propertyMap = properties.toVariantMap();
 
+                            Point location(x, y, SpatialReference::wgs84());
+                            Graphic* gdeltGraphic = new Graphic(location, propertyMap, this);
+                            m_overlay->graphics()->append(gdeltGraphic);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 FeatureCollectionTable* GdeltEventLayer::createTable()

@@ -52,6 +52,10 @@ void GEOINTMonitor::setMapView(MapQuickView* mapView)
     m_mapView->setMap(m_map);
     connect(m_mapView, &MapQuickView::exportImageCompleted, this, &GEOINTMonitor::exportMapImageCompleted);
 
+    // Add the GDELT query layer
+    GraphicsOverlay* gdeltOverlay = m_gdeltLayer->overlay();
+    m_mapView->graphicsOverlays()->append(gdeltOverlay);
+
     emit mapViewChanged();
 }
 
