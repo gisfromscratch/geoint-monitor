@@ -67,6 +67,14 @@ void GdeltEventLayer::networkRequestFinished(QNetworkReply* reply)
         qDebug() << "JSON is invalid!";
         return;
     }
+    if (!gdeltEventsDocument.isObject())
+    {
+        qDebug() << "JSON document is not an object!";
+        return;
+    }
+
+    QJsonObject gdeltEventsObject = gdeltEventsDocument.object();
+
 }
 
 FeatureCollectionTable* GdeltEventLayer::createTable()

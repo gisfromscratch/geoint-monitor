@@ -1,16 +1,16 @@
 HEADERS += \
     $$PWD/GdeltEventLayer.h \
-    AppInfo.h \
-    GEOINTMonitor.h
+    $$PWD/AppInfo.h \
+    $$PWD/GEOINTMonitor.h
 
 SOURCES += \
     $$PWD/GdeltEventLayer.cpp \
-    main.cpp \
-    GEOINTMonitor.cpp
+    $$PWD/main.cpp \
+    $$PWD/GEOINTMonitor.cpp
 
 RESOURCES += \
-    qml/qml.qrc \
-    Resources/Resources.qrc
+    $$PWD/qml/qml.qrc \
+    $$PWD/Resources/Resources.qrc
 
 #-------------------------------------------------------------------------------
 
