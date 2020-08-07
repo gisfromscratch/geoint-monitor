@@ -60,6 +60,8 @@ GraphicsOverlay* GdeltEventLayer::overlay() const
 
 void GdeltEventLayer::query()
 {
+    m_overlay->graphics()->clear();
+
     // TODO: Update the base url using the query filter
     QUrl gdeltQueryUrl("https://api.gdeltproject.org/api/v2/geo/geo?query=%22climate%20change%22&format=geojson");
 
