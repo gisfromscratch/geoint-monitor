@@ -46,6 +46,8 @@ GdeltEventLayer::GdeltEventLayer(QObject *parent) :
     SimpleMarkerSymbol* gdeltSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, Qt::black, 5, this);
     gdeltRenderer->setSymbol(gdeltSymbol);
     m_overlay->setRenderer(gdeltRenderer);
+
+    m_overlay->setPopupEnabled(true);
 }
 
 void GdeltEventLayer::setQueryFilter(const QString &filter)

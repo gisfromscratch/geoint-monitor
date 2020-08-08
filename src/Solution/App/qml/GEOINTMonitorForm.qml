@@ -13,6 +13,7 @@
 
 import QtQuick 2.6
 import QtQuick.Controls 2.2
+import Esri.ArcGISExtras 1.1
 import Esri.GEOINTMonitor 1.0
 
 Item {
@@ -40,6 +41,7 @@ Item {
     GEOINTMonitor {
         id: model
         mapView: view
+
         onMapImageExported: {
             mapForm.mapNotification(model.lastMapImageFilePath);
         }

@@ -14,6 +14,7 @@
 #include "GEOINTMonitor.h"
 
 #include "Basemap.h"
+#include "IdentifyGraphicsOverlayResult.h"
 #include "Map.h"
 #include "MapQuickView.h"
 
@@ -51,6 +52,8 @@ void GEOINTMonitor::setMapView(MapQuickView* mapView)
     m_mapView = mapView;
     m_mapView->setMap(m_map);
     connect(m_mapView, &MapQuickView::exportImageCompleted, this, &GEOINTMonitor::exportMapImageCompleted);
+    connect(m_mapView, &MapQuickView::mouseClicked, this, &GEOINTMonitor::mouseClicked);
+    connect(m_mapView, &MapQuickView::identifyGraphicsOverlayCompleted, this, &GEOINTMonitor::identifyGraphicsOverlayCompleted);
 
     // Add the GDELT query layer
     GraphicsOverlay* gdeltOverlay = m_gdeltLayer->overlay();
@@ -72,6 +75,35 @@ void GEOINTMonitor::exportMapImage() const
     }
 
     m_mapView->exportImage();
+}
+
+void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISRuntime::IdentifyGraphicsOverlayResult* identifyResult)
+{
+    Q_UNUSED(taskId);
+    if (!identifyResult->error().isEmpty())
+    {
+        return;
+    }
+
+    QList<Graphic*> identifiedGraphics = identifyResult->graphics();
+    foreach (const Graphic* graphic, identifiedGraphics)
+    {
+        qDebug() << graphic;
+        m_mapView->calloutData()->setTitle(graphic->attributes()->attributeValue("name").toString());
+    }
+}
+
+void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
+{
+    if (!m_mapView)
+    {
+        return;
+    }
+
+    const double pixelTolerance = 23;
+    bool onlyPopups = false;
+    GraphicsOverlay* gdeltOverlay = m_gdeltLayer->overlay();
+    m_mapView->identifyGraphicsOverlay(gdeltOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups);
 }
 
 void GEOINTMonitor::queryGdelt() const

@@ -18,6 +18,7 @@ namespace Esri
 {
 namespace ArcGISRuntime
 {
+class IdentifyGraphicsOverlayResult;
 class Map;
 class MapQuickView;
 }
@@ -27,6 +28,7 @@ class GdeltEventLayer;
 
 #include <QImage>
 #include <QObject>
+#include <QMouseEvent>
 #include <QUuid>
 
 class GEOINTMonitor : public QObject
@@ -49,6 +51,8 @@ signals:
 
 private slots:
     void exportMapImageCompleted(QUuid taskId, QImage image);
+    void identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISRuntime::IdentifyGraphicsOverlayResult* identifyResult);
+    void mouseClicked(QMouseEvent& mouseEvent);
 
 private:    
     Esri::ArcGISRuntime::MapQuickView* mapView() const;
