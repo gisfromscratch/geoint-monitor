@@ -110,16 +110,24 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
         m_mapView->calloutData()->setTitle("GDELT Graphic");
         AttributeListModel* gdeltAttributesModel = graphic->attributes();
         QStringList gdeltAttributeNames = gdeltAttributesModel->attributeNames();
-        QString details;
         foreach (const QString& gdeltAttributeName, gdeltAttributeNames)
         {
             QVariant gdeltAttributeValue = gdeltAttributesModel->attributeValue(gdeltAttributeName);
-
-            // % operator uses QStringBuilder under the hood!
-            details = details % gdeltAttributeValue.toString();
+            QString gdeltAttributeValueAsString = gdeltAttributeValue.toString();
+            if (0 == gdeltAttributeName.compare("name"))
+            {
+                m_mapView->calloutData()->setTitle(gdeltAttributeValueAsString);
+            }
+            else if (0 == gdeltAttributeName.compare("html"))
+            {
+                m_mapView->calloutData()->setDetail(gdeltAttributeValueAsString);
+            }
+            else if (0 == gdeltAttributeName.compare("shareimage"))
+            {
+                m_mapView->calloutData()->setImageUrl(QUrl(gdeltAttributeValueAsString));
+            }
         }
 
-        m_mapView->calloutData()->setDetail(details);
         m_mapView->calloutData()->setVisible(true);
     }
 
