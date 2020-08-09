@@ -43,7 +43,8 @@ GdeltEventLayer::GdeltEventLayer(QObject *parent) :
     connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &GdeltEventLayer::networkRequestFinished);
 
     SimpleRenderer* gdeltRenderer = new SimpleRenderer(this);
-    SimpleMarkerSymbol* gdeltSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, Qt::black, 5, this);
+    SimpleMarkerSymbol* gdeltSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, Qt::gray, 12, this);
+    gdeltSymbol->setOutline(new SimpleLineSymbol(SimpleLineSymbolStyle::Solid, Qt::black, 4, this));
     gdeltRenderer->setSymbol(gdeltSymbol);
     m_overlay->setRenderer(gdeltRenderer);
 

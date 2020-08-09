@@ -156,7 +156,7 @@ void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
     }
     m_mapView->calloutData()->setLocation(mapClickLocation);
 
-    const double pixelTolerance = 23;
+    const double pixelTolerance = 12;
     bool onlyPopups = false;
     GraphicsOverlay* gdeltOverlay = m_gdeltLayer->overlay();
     m_mapView->identifyGraphicsOverlay(gdeltOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups);
