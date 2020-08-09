@@ -87,6 +87,9 @@ int main(int argc, char *argv[])
     // Register the GEOINTMonitor (QQuickItem) for QML
     qmlRegisterType<GEOINTMonitor>("Esri.GEOINTMonitor", 1, 0, "GEOINTMonitor");
 
+    // Register callout data
+    qmlRegisterUncreatableType<CalloutData>("Esri.GEOINTMonitor", 1, 0, "CalloutData", "CalloutData is an uncreatable type");
+
     // Activate the styling
     QQuickStyle::setStyle("Material");
 

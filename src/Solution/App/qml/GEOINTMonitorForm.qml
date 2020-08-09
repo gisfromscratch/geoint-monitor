@@ -31,10 +31,18 @@ Item {
 
     // Create MapQuickView here, and create its Map etc. in C++ code
     MapView {
-        id: view
+        id: focusMapView
         anchors.fill: parent
         // set focus to enable keyboard navigation
         focus: true
+
+        // initialize Callout
+
+        Callout {
+            id: callout
+            calloutData: model.lastCalloutData
+            leaderPosition: leaderPositionEnum.Automatic
+        }
 
         onMouseClicked: {
             // Close popup if necessary
@@ -58,7 +66,7 @@ Item {
     // Declare the C++ instance which creates the map etc. and supply the view
     GEOINTMonitor {
         id: model
-        mapView: view
+        mapView: focusMapView
 
         onIdentifyCompleted: {
             // Update the popup location
@@ -72,6 +80,8 @@ Item {
             popup.x = nextX;
             popup.y = model.lastMouseClickLocation.y - popup.height - 5;
             //popup.open();
+
+            console.log(model.lastCalloutData);
         }
 
         onMapImageExported: {

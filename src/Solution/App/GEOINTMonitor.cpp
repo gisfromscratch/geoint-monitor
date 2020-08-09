@@ -17,10 +17,12 @@
 #include "IdentifyGraphicsOverlayResult.h"
 #include "Map.h"
 #include "MapQuickView.h"
+#include "Point.h"
 
 #include "GdeltEventLayer.h"
 
 #include <QDir>
+#include <QStringBuilder>
 #include <QUrl>
 
 using namespace Esri::ArcGISRuntime;
@@ -72,6 +74,16 @@ QPoint GEOINTMonitor::lastMouseClickLocation() const
     return m_lastMouseClickLocation;
 }
 
+Esri::ArcGISRuntime::CalloutData* GEOINTMonitor::lastCalloutData() const {
+
+    if (nullptr == m_mapView)
+    {
+        return nullptr;
+    }
+
+    return m_mapView->calloutData();
+}
+
 void GEOINTMonitor::exportMapImage() const
 {
     if (!m_mapView)
@@ -95,10 +107,23 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
     {
         qDebug() << graphic;
 
+        m_mapView->calloutData()->setTitle("GDELT Graphic");
         AttributeListModel* gdeltAttributesModel = graphic->attributes();
-        m_mapView->calloutData()->setTitle("Awesome");
+        QStringList gdeltAttributeNames = gdeltAttributesModel->attributeNames();
+        QString details;
+        foreach (const QString& gdeltAttributeName, gdeltAttributeNames)
+        {
+            QVariant gdeltAttributeValue = gdeltAttributesModel->attributeValue(gdeltAttributeName);
+
+            // % operator uses QStringBuilder under the hood!
+            details = details % gdeltAttributeValue.toString();
+        }
+
+        m_mapView->calloutData()->setDetail(details);
+        m_mapView->calloutData()->setVisible(true);
     }
 
+    emit calloutDataChanged();
     emit identifyCompleted();
 }
 
@@ -112,6 +137,16 @@ void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
     // Update the last received mouse event
     m_lastMouseClickLocation = mouseEvent.pos();
     emit mouseClickLocationChanged();
+
+    // Update the last received map location
+    Point mapClickLocation = m_mapView->screenToLocation(m_lastMouseClickLocation.x(), m_lastMouseClickLocation.y());
+
+    // Update the callout data
+    if (m_mapView->calloutData()->isVisible())
+    {
+        m_mapView->calloutData()->setVisible(false);
+    }
+    m_mapView->calloutData()->setLocation(mapClickLocation);
 
     const double pixelTolerance = 23;
     bool onlyPopups = false;

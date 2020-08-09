@@ -18,6 +18,7 @@ namespace Esri
 {
 namespace ArcGISRuntime
 {
+class CalloutData;
 class IdentifyGraphicsOverlayResult;
 class Map;
 class MapQuickView;
@@ -39,6 +40,7 @@ class GEOINTMonitor : public QObject
     Q_PROPERTY(Esri::ArcGISRuntime::MapQuickView* mapView READ mapView WRITE setMapView NOTIFY mapViewChanged)
     Q_PROPERTY(QString lastMapImageFilePath READ lastMapImageFilePath NOTIFY mapImageExported)
     Q_PROPERTY(QPoint lastMouseClickLocation READ lastMouseClickLocation NOTIFY mouseClickLocationChanged)
+    Q_PROPERTY(Esri::ArcGISRuntime::CalloutData* lastCalloutData READ lastCalloutData NOTIFY calloutDataChanged)
 
 public:
     explicit GEOINTMonitor(QObject* parent = nullptr);
@@ -52,6 +54,7 @@ signals:
     void mapImageExported();
     void mapViewChanged();
     void mouseClickLocationChanged();
+    void calloutDataChanged();
 
 private slots:
     void exportMapImageCompleted(QUuid taskId, QImage image);
@@ -64,6 +67,7 @@ private:
 
     QString lastMapImageFilePath() const;
     QPoint lastMouseClickLocation() const;
+    Esri::ArcGISRuntime::CalloutData* lastCalloutData() const;
 
     Esri::ArcGISRuntime::Map* m_map = nullptr;
     Esri::ArcGISRuntime::MapQuickView* m_mapView = nullptr;
