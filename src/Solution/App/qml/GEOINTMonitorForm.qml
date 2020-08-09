@@ -35,12 +35,44 @@ Item {
         anchors.fill: parent
         // set focus to enable keyboard navigation
         focus: true
+
+        onMouseClicked: {
+            // Close popup if necessary
+            if (popup.opened) {
+                popup.close();
+            }
+        }
+    }
+
+    Popup {
+        id: popup
+        x: 1
+        y: 1
+        width: 200
+        height: 300
+        modal: false
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
     }
 
     // Declare the C++ instance which creates the map etc. and supply the view
     GEOINTMonitor {
         id: model
         mapView: view
+
+        onIdentifyCompleted: {
+            // Update the popup location
+            // popup is horizontal restriced on left margin
+            // popup is vertical restricted
+            var maxX = parent.width - 0.5 * popup.width;
+            var nextX = model.lastMouseClickLocation.x - 0.5 * popup.width;
+            if (maxX < nextX) {
+                nextX = maxX;
+            }
+            popup.x = nextX;
+            popup.y = model.lastMouseClickLocation.y - popup.height - 5;
+            //popup.open();
+        }
 
         onMapImageExported: {
             mapForm.mapNotification(model.lastMapImageFilePath);

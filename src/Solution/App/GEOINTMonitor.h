@@ -29,6 +29,7 @@ class GdeltEventLayer;
 #include <QImage>
 #include <QObject>
 #include <QMouseEvent>
+#include <QPoint>
 #include <QUuid>
 
 class GEOINTMonitor : public QObject
@@ -37,6 +38,7 @@ class GEOINTMonitor : public QObject
 
     Q_PROPERTY(Esri::ArcGISRuntime::MapQuickView* mapView READ mapView WRITE setMapView NOTIFY mapViewChanged)
     Q_PROPERTY(QString lastMapImageFilePath READ lastMapImageFilePath NOTIFY mapImageExported)
+    Q_PROPERTY(QPoint lastMouseClickLocation READ lastMouseClickLocation NOTIFY mouseClickLocationChanged)
 
 public:
     explicit GEOINTMonitor(QObject* parent = nullptr);
@@ -46,8 +48,10 @@ public:
     Q_INVOKABLE void queryGdelt() const;
 
 signals:
+    void identifyCompleted();
     void mapImageExported();
     void mapViewChanged();
+    void mouseClickLocationChanged();
 
 private slots:
     void exportMapImageCompleted(QUuid taskId, QImage image);
@@ -59,10 +63,12 @@ private:
     void setMapView(Esri::ArcGISRuntime::MapQuickView* mapView);
 
     QString lastMapImageFilePath() const;
+    QPoint lastMouseClickLocation() const;
 
     Esri::ArcGISRuntime::Map* m_map = nullptr;
     Esri::ArcGISRuntime::MapQuickView* m_mapView = nullptr;
     QString m_lastMapImageFilePath;
+    QPoint m_lastMouseClickLocation;
 
     GdeltEventLayer* m_gdeltLayer = nullptr;
 };

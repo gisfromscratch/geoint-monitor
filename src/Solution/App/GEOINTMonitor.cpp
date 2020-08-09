@@ -67,6 +67,11 @@ QString GEOINTMonitor::lastMapImageFilePath() const
     return m_lastMapImageFilePath;
 }
 
+QPoint GEOINTMonitor::lastMouseClickLocation() const
+{
+    return m_lastMouseClickLocation;
+}
+
 void GEOINTMonitor::exportMapImage() const
 {
     if (!m_mapView)
@@ -89,8 +94,12 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
     foreach (const Graphic* graphic, identifiedGraphics)
     {
         qDebug() << graphic;
-        m_mapView->calloutData()->setTitle(graphic->attributes()->attributeValue("name").toString());
+
+        AttributeListModel* gdeltAttributesModel = graphic->attributes();
+        m_mapView->calloutData()->setTitle("Awesome");
     }
+
+    emit identifyCompleted();
 }
 
 void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
@@ -99,6 +108,10 @@ void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
     {
         return;
     }
+
+    // Update the last received mouse event
+    m_lastMouseClickLocation = mouseEvent.pos();
+    emit mouseClickLocationChanged();
 
     const double pixelTolerance = 23;
     bool onlyPopups = false;
