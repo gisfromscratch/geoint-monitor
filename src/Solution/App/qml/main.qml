@@ -49,13 +49,48 @@ ApplicationWindow {
         }
     }
 
-    GEOINTMonitorForm {
-        id: monitorForm
+    ColumnLayout {
         anchors.fill: parent
 
-        onMapNotification: {
-            messageLabel.text = message;
-            messageOn.start();
+        GEOINTMonitorForm {
+            id: monitorForm
+
+            Layout.preferredWidth: parent.width
+            Layout.preferredHeight: parent.height - gdeltListView.height
+
+            onMapNotification: {
+                messageLabel.text = message;
+                messageOn.start();
+            }
+
+            onCalloutDataChanged: {
+                gdeltListModel.append({
+                    title: calloutData.title
+                });
+            }
+        }
+
+        ListView {
+            id: gdeltListView
+            orientation: ListView.Horizontal
+            anchors.margins: 20
+            Layout.preferredWidth: parent.width
+
+            height: 50
+            //anchors.top: monitorForm.bottom
+
+            model: ListModel {
+                id: gdeltListModel
+            }
+
+            delegate: Item {
+                height: gdeltListView.height
+                width: 50
+
+                Label {
+                    text: title
+                }
+            }
         }
     }
 

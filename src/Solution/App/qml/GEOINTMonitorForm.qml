@@ -27,7 +27,8 @@ Item {
         model.queryGdelt();
     }
 
-    signal mapNotification(string message)
+    signal mapNotification(string message);
+    signal calloutDataChanged(CalloutData calloutData);
 
     // Create MapQuickView here, and create its Map etc. in C++ code
     MapView {
@@ -81,7 +82,7 @@ Item {
             popup.y = model.lastMouseClickLocation.y - popup.height - 5;
             //popup.open();
 
-            console.log(model.lastCalloutData);
+            mapForm.calloutDataChanged(model.lastCalloutData);
         }
 
         onMapImageExported: {

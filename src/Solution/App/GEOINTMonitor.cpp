@@ -128,7 +128,8 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
             }
         }
 
-        m_mapView->calloutData()->setVisible(true);
+        // TODO: Ugly UI do not show
+        //m_mapView->calloutData()->setVisible(true);
     }
 
     emit calloutDataChanged();
