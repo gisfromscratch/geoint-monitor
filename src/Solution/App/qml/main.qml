@@ -64,9 +64,13 @@ ApplicationWindow {
             }
 
             onCalloutDataChanged: {
-                gdeltListModel.append({
+                // Add new list element and select it
+                var listElement = {
                     title: calloutData.title
-                });
+                };
+                var lastIndex = gdeltListModel.count;
+                gdeltListModel.append(listElement);
+                gdeltListView.currentIndex = lastIndex;
             }
         }
 
@@ -74,10 +78,11 @@ ApplicationWindow {
             id: gdeltListView
             orientation: ListView.Horizontal
             anchors.margins: 20
-            Layout.preferredWidth: parent.width
+            Layout.fillWidth: true
 
             height: 50
-            //anchors.top: monitorForm.bottom
+            highlight: Rectangle { color: "#434a39"; radius: 5 }
+            focus: true
 
             model: ListModel {
                 id: gdeltListModel
@@ -85,10 +90,27 @@ ApplicationWindow {
 
             delegate: Item {
                 height: gdeltListView.height
-                width: 50
+                width: 200
 
                 Label {
+                    anchors.fill: parent
+                    horizontalAlignment: Qt.AlignHCenter
+                    verticalAlignment: Qt.AlignVCenter
+                    wrapMode: Text.Wrap
                     text: title
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    propagateComposedEvents: true
+                    onClicked: {
+                        if (index === gdeltListView.currentIndex) {
+                            mouse.accepted = false;
+                        }
+                        else {
+                            gdeltListView.currentIndex = index;
+                        }
+                    }
                 }
             }
         }
