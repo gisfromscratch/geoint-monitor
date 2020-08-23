@@ -22,6 +22,7 @@
 #include "GdeltEventLayer.h"
 
 #include <QDir>
+#include <QRegularExpression>
 #include <QStringBuilder>
 #include <QUrl>
 
@@ -102,10 +103,12 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
         return;
     }
 
+    QRegularExpression titlePattern("title=\"(?<title>[^\"]+)\"");
+    QRegularExpression hrefPattern("href=\"(?<href>[^\"]+)\"");
     QList<Graphic*> identifiedGraphics = identifyResult->graphics();
     foreach (const Graphic* graphic, identifiedGraphics)
     {
-        qDebug() << graphic;
+        bool hasValidLink = false;
 
         m_mapView->calloutData()->setTitle("GDELT Graphic");
         AttributeListModel* gdeltAttributesModel = graphic->attributes();
@@ -120,9 +123,27 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
             }
             else if (0 == gdeltAttributeName.compare("html"))
             {
-                m_mapView->calloutData()->setDetail(gdeltAttributeValueAsString);
+                QRegularExpressionMatch titleMatch = titlePattern.match(gdeltAttributeValueAsString);
+                if (titleMatch.hasMatch())
+                {
+                    QString title = titleMatch.captured("title");
+                    m_mapView->calloutData()->setDetail(title);
+                }
+                else
+                {
+                    m_mapView->calloutData()->setDetail(gdeltAttributeValueAsString);
+                }
+
+                QRegularExpressionMatch hrefMatch = hrefPattern.match(gdeltAttributeValueAsString);
+                if (hrefMatch.hasMatch())
+                {
+                    // Use the image url for saving the news url
+                    QString href = hrefMatch.captured("href");
+                    m_mapView->calloutData()->setImageUrl(QUrl(href));
+                    hasValidLink = true;
+                }
             }
-            else if (0 == gdeltAttributeName.compare("shareimage"))
+            else if (0 == gdeltAttributeName.compare("shareimage") && !hasValidLink)
             {
                 m_mapView->calloutData()->setImageUrl(QUrl(gdeltAttributeValueAsString));
             }

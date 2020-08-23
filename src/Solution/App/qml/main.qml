@@ -66,7 +66,9 @@ ApplicationWindow {
             onCalloutDataChanged: {
                 // Add new list element and select it
                 var listElement = {
-                    title: calloutData.title
+                    title: calloutData.title,
+                    detail: calloutData.detail,
+                    url: calloutData.imageUrl.toString()
                 };
                 var lastIndex = gdeltListModel.count;
                 gdeltListModel.append(listElement);
@@ -80,7 +82,7 @@ ApplicationWindow {
             anchors.margins: 20
             Layout.fillWidth: true
 
-            height: 50
+            height: 100
             highlight: Rectangle { color: "#434a39"; radius: 5 }
             focus: true
 
@@ -89,22 +91,58 @@ ApplicationWindow {
             }
 
             delegate: Item {
+                id: listItem
                 height: gdeltListView.height
                 width: 200
 
-                Label {
+                ColumnLayout {
                     anchors.fill: parent
-                    horizontalAlignment: Qt.AlignHCenter
-                    verticalAlignment: Qt.AlignVCenter
-                    wrapMode: Text.Wrap
-                    text: title
+
+                    Label {
+                        id: titleLabel
+                        Layout.fillWidth: true
+                        horizontalAlignment: Qt.AlignHCenter
+                        verticalAlignment: Qt.AlignTop
+                        wrapMode: Text.Wrap
+                        text: title
+                    }
+
+                    Label {
+                        Layout.fillWidth: true
+                        horizontalAlignment: Qt.AlignHCenter
+                        verticalAlignment: Qt.AlignBottom
+                        wrapMode: Text.Wrap
+                        font.pointSize: titleLabel.font.pointSize - 2
+                        text: detail
+                    }
                 }
 
                 MouseArea {
                     anchors.fill: parent
+                    hoverEnabled: true
                     propagateComposedEvents: true
+
+                    onEntered: {
+                        if (index === gdeltListView.currentIndex) {
+                            // Entered the current selected item
+                            cursorShape = Qt.PointingHandCursor;
+                        }
+                    }
+
+                    onExited: {
+                        if (index === gdeltListView.currentIndex) {
+                            // Exited the current selected item
+                            cursorShape = Qt.ArrowCursor;
+                        }
+                    }
+
                     onClicked: {
                         if (index === gdeltListView.currentIndex) {
+                            // Selected item clicked
+                            // open the url
+                            var gdeltListElement = gdeltListModel.get(index);
+                            Qt.openUrlExternally(gdeltListElement.url);
+
                             mouse.accepted = false;
                         }
                         else {
