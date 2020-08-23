@@ -1,9 +1,11 @@
 HEADERS += \
+    $$PWD/GdeltCalloutData.h \
     $$PWD/GdeltEventLayer.h \
     $$PWD/AppInfo.h \
     $$PWD/GEOINTMonitor.h
 
 SOURCES += \
+    $$PWD/GdeltCalloutData.cpp \
     $$PWD/GdeltEventLayer.cpp \
     $$PWD/main.cpp \
     $$PWD/GEOINTMonitor.cpp

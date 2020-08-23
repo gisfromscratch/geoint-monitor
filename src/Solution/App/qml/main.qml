@@ -66,10 +66,12 @@ ApplicationWindow {
             onCalloutDataChanged: {
                 // Add new list element and select it
                 var listElement = {
+                    uid: calloutData.uid,
                     title: calloutData.title,
                     detail: calloutData.detail,
-                    url: calloutData.imageUrl.toString()
+                    url: calloutData.link
                 };
+                console.log(calloutData.uid);
                 var lastIndex = gdeltListModel.count;
                 gdeltListModel.append(listElement);
                 gdeltListView.currentIndex = lastIndex;

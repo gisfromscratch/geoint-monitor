@@ -32,6 +32,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QNetworkReply>
+#include <QUuid>
 
 using namespace Esri::ArcGISRuntime;
 
@@ -121,6 +122,8 @@ void GdeltEventLayer::networkRequestFinished(QNetworkReply* reply)
 
                             Point location(x, y, SpatialReference::wgs84());
                             Graphic* gdeltGraphic = new Graphic(location, propertyMap, this);
+                            QUuid uniqueId = QUuid::createUuid();
+                            gdeltGraphic->attributes()->insertAttribute("uid", uniqueId.toString());
                             m_overlay->graphics()->append(gdeltGraphic);
                         }
                     }

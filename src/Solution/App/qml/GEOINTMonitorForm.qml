@@ -28,7 +28,7 @@ Item {
     }
 
     signal mapNotification(string message);
-    signal calloutDataChanged(CalloutData calloutData);
+    signal calloutDataChanged(GdeltCalloutData calloutData);
 
     // Create MapQuickView here, and create its Map etc. in C++ code
     MapView {
@@ -38,12 +38,13 @@ Item {
         focus: true
 
         // initialize Callout
-
+        /*
         Callout {
             id: callout
             calloutData: model.lastCalloutData
             leaderPosition: leaderPositionEnum.Automatic
         }
+        */
 
         onMouseClicked: {
             // Close popup if necessary

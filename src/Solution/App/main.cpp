@@ -16,7 +16,9 @@
 #endif
 
 #include "AppInfo.h"
+
 #include "GEOINTMonitor.h"
+#include "GdeltCalloutData.h"
 
 #include "ArcGISRuntimeEnvironment.h"
 #include "MapQuickView.h"
@@ -89,6 +91,7 @@ int main(int argc, char *argv[])
 
     // Register callout data
     qmlRegisterUncreatableType<CalloutData>("Esri.GEOINTMonitor", 1, 0, "CalloutData", "CalloutData is an uncreatable type");
+    qmlRegisterUncreatableType<GdeltCalloutData>("Esri.GEOINTMonitor", 1, 0, "GdeltCalloutData", "GdeltCalloutData is an uncreatable type");
 
     // Activate the styling
     QQuickStyle::setStyle("Material");

@@ -25,6 +25,7 @@ class MapQuickView;
 }
 }
 
+class GdeltCalloutData;
 class GdeltEventLayer;
 
 #include <QImage>
@@ -40,7 +41,7 @@ class GEOINTMonitor : public QObject
     Q_PROPERTY(Esri::ArcGISRuntime::MapQuickView* mapView READ mapView WRITE setMapView NOTIFY mapViewChanged)
     Q_PROPERTY(QString lastMapImageFilePath READ lastMapImageFilePath NOTIFY mapImageExported)
     Q_PROPERTY(QPoint lastMouseClickLocation READ lastMouseClickLocation NOTIFY mouseClickLocationChanged)
-    Q_PROPERTY(Esri::ArcGISRuntime::CalloutData* lastCalloutData READ lastCalloutData NOTIFY calloutDataChanged)
+    Q_PROPERTY(GdeltCalloutData* lastCalloutData READ lastCalloutData NOTIFY calloutDataChanged)
 
 public:
     explicit GEOINTMonitor(QObject* parent = nullptr);
@@ -67,13 +68,14 @@ private:
 
     QString lastMapImageFilePath() const;
     QPoint lastMouseClickLocation() const;
-    Esri::ArcGISRuntime::CalloutData* lastCalloutData() const;
+    GdeltCalloutData* lastCalloutData() const;
 
     Esri::ArcGISRuntime::Map* m_map = nullptr;
     Esri::ArcGISRuntime::MapQuickView* m_mapView = nullptr;
     QString m_lastMapImageFilePath;
     QPoint m_lastMouseClickLocation;
 
+    GdeltCalloutData* m_lastCalloutData = nullptr;
     GdeltEventLayer* m_gdeltLayer = nullptr;
 };
 

@@ -19,6 +19,7 @@
 #include "MapQuickView.h"
 #include "Point.h"
 
+#include "GdeltCalloutData.h"
 #include "GdeltEventLayer.h"
 
 #include <QDir>
@@ -31,6 +32,7 @@ using namespace Esri::ArcGISRuntime;
 GEOINTMonitor::GEOINTMonitor(QObject* parent /* = nullptr */):
     QObject(parent),
     m_map(new Map(Basemap::openStreetMap(this), this)),
+    m_lastCalloutData(new GdeltCalloutData(this)),
     m_gdeltLayer(new GdeltEventLayer(this))
 {
 }
@@ -75,14 +77,9 @@ QPoint GEOINTMonitor::lastMouseClickLocation() const
     return m_lastMouseClickLocation;
 }
 
-Esri::ArcGISRuntime::CalloutData* GEOINTMonitor::lastCalloutData() const {
-
-    if (nullptr == m_mapView)
-    {
-        return nullptr;
-    }
-
-    return m_mapView->calloutData();
+GdeltCalloutData* GEOINTMonitor::lastCalloutData() const
+{
+    return m_lastCalloutData;
 }
 
 void GEOINTMonitor::exportMapImage() const
@@ -108,9 +105,8 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
     QList<Graphic*> identifiedGraphics = identifyResult->graphics();
     foreach (const Graphic* graphic, identifiedGraphics)
     {
-        bool hasValidLink = false;
-
         m_mapView->calloutData()->setTitle("GDELT Graphic");
+
         AttributeListModel* gdeltAttributesModel = graphic->attributes();
         QStringList gdeltAttributeNames = gdeltAttributesModel->attributeNames();
         foreach (const QString& gdeltAttributeName, gdeltAttributeNames)
@@ -120,6 +116,7 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
             if (0 == gdeltAttributeName.compare("name"))
             {
                 m_mapView->calloutData()->setTitle(gdeltAttributeValueAsString);
+                m_lastCalloutData->setTitle(gdeltAttributeValueAsString);
             }
             else if (0 == gdeltAttributeName.compare("html"))
             {
@@ -128,24 +125,29 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
                 {
                     QString title = titleMatch.captured("title");
                     m_mapView->calloutData()->setDetail(title);
+                    m_lastCalloutData->setDetail(title);
                 }
                 else
                 {
                     m_mapView->calloutData()->setDetail(gdeltAttributeValueAsString);
+                    m_lastCalloutData->setDetail(gdeltAttributeValueAsString);
                 }
 
                 QRegularExpressionMatch hrefMatch = hrefPattern.match(gdeltAttributeValueAsString);
                 if (hrefMatch.hasMatch())
                 {
-                    // Use the image url for saving the news url
+                    // Set the news url
                     QString href = hrefMatch.captured("href");
-                    m_mapView->calloutData()->setImageUrl(QUrl(href));
-                    hasValidLink = true;
+                    m_lastCalloutData->setLink(href);
                 }
             }
-            else if (0 == gdeltAttributeName.compare("shareimage") && !hasValidLink)
+            else if (0 == gdeltAttributeName.compare("shareimage"))
             {
                 m_mapView->calloutData()->setImageUrl(QUrl(gdeltAttributeValueAsString));
+            }
+            else if (0 == gdeltAttributeName.compare("uid"))
+            {
+                m_lastCalloutData->setUniqueId(gdeltAttributeValueAsString);
             }
         }
 
