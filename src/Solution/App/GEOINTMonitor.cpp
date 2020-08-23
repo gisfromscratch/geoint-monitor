@@ -201,8 +201,9 @@ void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
     m_mapView->identifyGraphicsOverlay(gdeltOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups);
 }
 
-void GEOINTMonitor::queryGdelt() const
+void GEOINTMonitor::queryGdelt(const QString &queryText) const
 {
+    m_gdeltLayer->setQueryFilter(queryText);
     m_gdeltLayer->query();
 }
 

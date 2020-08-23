@@ -40,10 +40,17 @@ ApplicationWindow {
                 }
             }
 
+            TextField {
+                id: queryText
+                Layout.fillWidth: true
+                text: "climate change"
+            }
+
             ToolButton {
                 text: qsTr("Query GDELT")
                 onClicked: {
-                    monitorForm.queryGdelt();
+                    gdeltListModel.clear();
+                    monitorForm.queryGdelt(queryText.text);
                 }
             }
         }

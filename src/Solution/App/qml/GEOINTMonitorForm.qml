@@ -27,8 +27,8 @@ Item {
         model.selectGraphic(graphicUid);
     }
 
-    function queryGdelt() {
-        model.queryGdelt();
+    function queryGdelt(queryText) {
+        model.queryGdelt(queryText);
     }
 
     signal mapNotification(string message);

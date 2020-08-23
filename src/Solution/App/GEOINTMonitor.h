@@ -48,7 +48,7 @@ public:
     ~GEOINTMonitor() override;
 
     Q_INVOKABLE void exportMapImage() const;
-    Q_INVOKABLE void queryGdelt() const;
+    Q_INVOKABLE void queryGdelt(const QString& queryText) const;
     Q_INVOKABLE void selectGraphic(const QString& graphicUid) const;
 
 signals:

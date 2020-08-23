@@ -84,7 +84,8 @@ void GdeltEventLayer::query()
     m_overlay->graphics()->clear();
 
     // TODO: Update the base url using the query filter
-    QUrl gdeltQueryUrl("https://api.gdeltproject.org/api/v2/geo/geo?query=%22climate%20change%22&format=geojson");
+    QString gdeltQueryString = "https://api.gdeltproject.org/api/v2/geo/geo?query=" + m_queryFilter + "&format=geojson";
+    QUrl gdeltQueryUrl(gdeltQueryString);
 
     QNetworkRequest gdeltRequest;
     gdeltRequest.setUrl(gdeltQueryUrl);
