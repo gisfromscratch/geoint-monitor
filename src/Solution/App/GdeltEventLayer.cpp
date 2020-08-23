@@ -62,6 +62,23 @@ GraphicsOverlay* GdeltEventLayer::overlay() const
     return m_overlay;
 }
 
+Graphic* GdeltEventLayer::findGraphic(const QString &graphicUid) const
+{
+    GraphicListModel* graphics = m_overlay->graphics();
+    int graphicCount = graphics->size();
+    for (int graphicIndex = 0; graphicIndex < graphicCount; graphicIndex++)
+    {
+        Graphic* graphic = graphics->at(graphicIndex);
+        QVariant uniqueId = graphic->attributes()->attributeValue("uid");
+        if (!uniqueId.isNull() && 0 == uniqueId.toString().compare(graphicUid))
+        {
+            return graphic;
+        }
+    }
+
+    return nullptr;
+}
+
 void GdeltEventLayer::query()
 {
     m_overlay->graphics()->clear();

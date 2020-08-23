@@ -71,7 +71,7 @@ ApplicationWindow {
                     detail: calloutData.detail,
                     url: calloutData.link
                 };
-                console.log(calloutData.uid);
+
                 var lastIndex = gdeltListModel.count;
                 gdeltListModel.append(listElement);
                 gdeltListView.currentIndex = lastIndex;
@@ -139,16 +139,20 @@ ApplicationWindow {
                     }
 
                     onClicked: {
+                        var gdeltListElement = gdeltListModel.get(index);
                         if (index === gdeltListView.currentIndex) {
                             // Selected item clicked
                             // open the url
-                            var gdeltListElement = gdeltListModel.get(index);
                             Qt.openUrlExternally(gdeltListElement.url);
 
                             mouse.accepted = false;
                         }
                         else {
+                            // Select the clicked item
+                            // navigate to graphic
                             gdeltListView.currentIndex = index;
+
+                            monitorForm.selectGraphic(gdeltListElement.uid);
                         }
                     }
                 }

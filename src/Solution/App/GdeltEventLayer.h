@@ -30,6 +30,7 @@ namespace ArcGISRuntime
 {
 class FeatureCollectionTable;
 class GraphicsOverlay;
+class Graphic;
 }
 }
 
@@ -47,6 +48,8 @@ public:
     void setQueryFilter(const QString& filter);
 
     Esri::ArcGISRuntime::GraphicsOverlay* overlay() const;
+
+    Esri::ArcGISRuntime::Graphic* findGraphic(const QString& graphicUid) const;
 
     void query();
 

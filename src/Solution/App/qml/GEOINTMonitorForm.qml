@@ -23,6 +23,10 @@ Item {
         model.exportMapImage();
     }
 
+    function selectGraphic(graphicUid) {
+        model.selectGraphic(graphicUid);
+    }
+
     function queryGdelt() {
         model.queryGdelt();
     }
@@ -82,7 +86,9 @@ Item {
             popup.x = nextX;
             popup.y = model.lastMouseClickLocation.y - popup.height - 5;
             //popup.open();
+        }
 
+        onCalloutDataChanged: {
             mapForm.calloutDataChanged(model.lastCalloutData);
         }
 

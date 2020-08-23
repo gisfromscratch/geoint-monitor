@@ -14,6 +14,7 @@
 #include "GEOINTMonitor.h"
 
 #include "Basemap.h"
+#include "Graphic.h"
 #include "IdentifyGraphicsOverlayResult.h"
 #include "Map.h"
 #include "MapQuickView.h"
@@ -155,7 +156,19 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
         //m_mapView->calloutData()->setVisible(true);
     }
 
-    emit calloutDataChanged();
+    if (!identifiedGraphics.empty())
+    {
+        // Select last identified graphic
+        Graphic* gdeltGraphic = m_gdeltLayer->findGraphic(m_lastCalloutData->uniqueId());
+        if (nullptr != gdeltGraphic)
+        {
+            gdeltGraphic->setSelected(true);
+        }
+
+        // Only when there is at least one identified graphics
+        emit calloutDataChanged();
+    }
+
     emit identifyCompleted();
 }
 
@@ -180,9 +193,11 @@ void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
     }
     m_mapView->calloutData()->setLocation(mapClickLocation);
 
+    // Identify the graphics
     const double pixelTolerance = 12;
     bool onlyPopups = false;
     GraphicsOverlay* gdeltOverlay = m_gdeltLayer->overlay();
+    gdeltOverlay->clearSelection();
     m_mapView->identifyGraphicsOverlay(gdeltOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups);
 }
 
@@ -205,5 +220,32 @@ void GEOINTMonitor::exportMapImageCompleted(QUuid taskId, QImage image)
         // Emit map image exported
         m_lastMapImageFilePath = absoluteFileName;
         emit mapImageExported();
+    }
+}
+
+void GEOINTMonitor::selectGraphic(const QString &graphicUid) const
+{
+    Graphic* gdeltGraphic = m_gdeltLayer->findGraphic(graphicUid);
+    if (nullptr == gdeltGraphic)
+    {
+        return;
+    }
+
+    // Select and pan
+    m_gdeltLayer->overlay()->clearSelection();
+    gdeltGraphic->setSelected(true);
+
+    Geometry gdeltGeometry = gdeltGraphic->geometry();
+    switch (gdeltGeometry.geometryType())
+    {
+    case GeometryType::Point:
+        {
+            Point gdeltLocation = (Point)gdeltGeometry;
+            m_mapView->setViewpointCenter(gdeltLocation);
+        }
+        break;
+
+    default:
+        return;
     }
 }
