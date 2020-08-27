@@ -25,7 +25,10 @@ class MapGraphicsView;
 
 class GdeltEventLayer;
 
+
+
 #include <QMainWindow>
+#include <QUuid>
 
 class Shell : public QMainWindow
 {
@@ -34,7 +37,9 @@ public:
     explicit Shell(QWidget* parent = nullptr);
     ~Shell() override;
 
-public slots:
+private slots:
+    void exportMapImage();
+    void exportMapImageCompleted(QUuid taskId, QImage image);
 
 private:
     Esri::ArcGISRuntime::Map* m_map = nullptr;

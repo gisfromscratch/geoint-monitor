@@ -22,6 +22,9 @@
 
 #include "../App/GdeltEventLayer.h"
 
+#include <QDir>
+#include <QTimer>
+
 using namespace Esri::ArcGISRuntime;
 
 Shell::Shell(QWidget* parent /*=nullptr*/):
@@ -31,6 +34,7 @@ Shell::Shell(QWidget* parent /*=nullptr*/):
 
     // Create the Widget view
     m_mapView = new MapGraphicsView(this);
+    connect(m_mapView, &MapGraphicsView::exportImageCompleted, this, &Shell::exportMapImageCompleted);
 
     // Create a map using the openStreetMap Basemap
     m_map = new Map(Basemap::openStreetMap(this), this);
@@ -48,9 +52,33 @@ Shell::Shell(QWidget* parent /*=nullptr*/):
     // Query the events
     m_gdeltEventLayer->setQueryFilter("climate change");
     m_gdeltEventLayer->query();
+
+    // Export map image
+    QTimer::singleShot(3000, this, &Shell::exportMapImage);
 }
 
 // destructor
 Shell::~Shell()
 {
+}
+
+void Shell::exportMapImage()
+{
+    m_mapView->exportImage();
+}
+
+void Shell::exportMapImageCompleted(QUuid taskId, QImage image)
+{
+    Q_UNUSED(taskId);
+
+    QDateTime now = QDateTime::currentDateTime();
+    QString nowAsString = now.toString("yyyy-MM-dd_HH.mm.ss");
+    QString fileName = "GEOINT-Monitor_" + nowAsString + ".png";
+    QDir imageDir = QDir::temp();
+    QString absoluteFileName = imageDir.absoluteFilePath(fileName);
+    if (image.save(absoluteFileName))
+    {
+        // Emit map image exported
+        qDebug() << absoluteFileName;
+    }
 }
