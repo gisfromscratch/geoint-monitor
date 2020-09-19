@@ -26,6 +26,7 @@
 #include "FeatureCollectionTable.h"
 #include "Graphic.h"
 #include "GraphicsOverlay.h"
+#include "HeatmapRenderer.h"
 #include "SimpleMarkerSymbol.h"
 #include "SimpleRenderer.h"
 
@@ -48,6 +49,40 @@ GdeltEventLayer::GdeltEventLayer(QObject *parent) :
     gdeltSymbol->setOutline(new SimpleLineSymbol(SimpleLineSymbolStyle::Solid, Qt::black, 4, this));
     gdeltRenderer->setSymbol(gdeltSymbol);
     m_overlay->setRenderer(gdeltRenderer);
+
+    QJsonObject rendererJson;
+    rendererJson.insert("type", "heatmap");
+    rendererJson.insert("blurRadius", 10);
+
+    QJsonObject firstColorStop;
+    firstColorStop.insert("ratio", 0);
+    QJsonArray firstColorArray;
+    firstColorArray.push_back(133);
+    firstColorArray.push_back(193);
+    firstColorArray.push_back(200);
+    firstColorArray.push_back(0);
+    firstColorStop.insert("colorStops", firstColorArray);
+
+    QJsonObject secondColorStop;
+    secondColorStop.insert("ratio", 0.01);
+    QJsonArray secondColorArray;
+    secondColorArray.push_back(133);
+    secondColorArray.push_back(193);
+    secondColorArray.push_back(200);
+    secondColorArray.push_back(0);
+    secondColorStop.insert("colorStops", secondColorArray);
+
+    QJsonArray colorStopsArray;
+    colorStopsArray.push_back(firstColorStop);
+    colorStopsArray.push_back(secondColorStop);
+
+    rendererJson.insert("maxPixelIntensity", 256);
+    rendererJson.insert("minPixelIntensity", 0);
+
+    QJsonDocument rendererDocument(rendererJson);
+    QString rendererAsJson = rendererDocument.toJson();
+    HeatmapRenderer* gdeltHeatmapRenderer = dynamic_cast<HeatmapRenderer*>(Renderer::fromJson(rendererAsJson));
+    m_overlay->setRenderer(gdeltHeatmapRenderer);
 
     m_overlay->setPopupEnabled(true);
 }
