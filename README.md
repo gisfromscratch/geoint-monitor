@@ -1,6 +1,8 @@
 # geoint-monitor
 The GEOINT Monitor is a desktop map application visualizing occurred events worldwide.
 
+![GEOINT Monitor](images/GEOINT_Monitor.png)
+
 ## Software requirements
 - [ArcGIS Runtime Qt](https://developers.arcgis.com/qt/) Version 100.7
 
