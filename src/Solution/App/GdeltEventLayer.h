@@ -31,6 +31,7 @@ namespace ArcGISRuntime
 class FeatureCollectionTable;
 class GraphicsOverlay;
 class Graphic;
+class Renderer;
 }
 }
 
@@ -44,6 +45,8 @@ class GdeltEventLayer : public QObject
     Q_OBJECT
 public:
     explicit GdeltEventLayer(QObject *parent = nullptr);
+
+    void setHeatmapRendering(bool enabled);
 
     void setQueryFilter(const QString& filter);
 
@@ -63,8 +66,10 @@ private:
 
     QNetworkAccessManager* m_networkAccessManager = nullptr;
     Esri::ArcGISRuntime::GraphicsOverlay* m_overlay = nullptr;
-    QString m_queryFilter;
+    Esri::ArcGISRuntime::Renderer* m_simpleRenderer = nullptr;
+    Esri::ArcGISRuntime::Renderer* m_heatMapRenderer = nullptr;
 
+    QString m_queryFilter;
 };
 
 #endif // GDELTEVENTLAYER_H

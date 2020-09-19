@@ -47,6 +47,8 @@ public:
     explicit GEOINTMonitor(QObject* parent = nullptr);
     ~GEOINTMonitor() override;
 
+    Q_INVOKABLE void activateHeatmapRendering() const;
+    Q_INVOKABLE void activateSimpleRendering() const;
     Q_INVOKABLE void exportMapImage() const;
     Q_INVOKABLE void queryGdelt(const QString& queryText) const;
     Q_INVOKABLE void selectGraphic(const QString& graphicUid) const;

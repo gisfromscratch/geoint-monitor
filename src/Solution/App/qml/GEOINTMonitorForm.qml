@@ -19,6 +19,14 @@ import Esri.GEOINTMonitor 1.0
 Item {
     id: mapForm
 
+    function activateSimpleRendering() {
+        model.activateSimpleRendering();
+    }
+
+    function activateHeatmapRendering() {
+        model.activateHeatmapRendering();
+    }
+
     function exportMapImage() {
         model.exportMapImage();
     }

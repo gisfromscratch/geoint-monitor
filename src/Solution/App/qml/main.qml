@@ -33,6 +33,27 @@ ApplicationWindow {
         RowLayout {
             anchors.fill: parent
 
+            ButtonGroup {
+                buttons: [simpleButton, heatButton]
+            }
+
+            RadioButton {
+                id: simpleButton
+                checked: true
+                text: qsTr("Simple")
+                onClicked: {
+                    monitorForm.activateSimpleRendering();
+                }
+            }
+
+            RadioButton {
+                id: heatButton
+                text: qsTr("Heat")
+                onClicked: {
+                    monitorForm.activateHeatmapRendering();
+                }
+            }
+
             ToolButton {
                 text: qsTr("Export map")
                 onClicked: {

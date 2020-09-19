@@ -83,6 +83,16 @@ GdeltCalloutData* GEOINTMonitor::lastCalloutData() const
     return m_lastCalloutData;
 }
 
+void GEOINTMonitor::activateHeatmapRendering() const
+{
+    m_gdeltLayer->setHeatmapRendering(true);
+}
+
+void GEOINTMonitor::activateSimpleRendering() const
+{
+    m_gdeltLayer->setHeatmapRendering(false);
+}
+
 void GEOINTMonitor::exportMapImage() const
 {
     if (!m_mapView)

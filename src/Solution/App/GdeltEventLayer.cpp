@@ -48,6 +48,7 @@ GdeltEventLayer::GdeltEventLayer(QObject *parent) :
     SimpleMarkerSymbol* gdeltSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, Qt::gray, 12, this);
     gdeltSymbol->setOutline(new SimpleLineSymbol(SimpleLineSymbolStyle::Solid, Qt::black, 4, this));
     gdeltRenderer->setSymbol(gdeltSymbol);
+    m_simpleRenderer = gdeltRenderer;
     m_overlay->setRenderer(gdeltRenderer);
 
     QJsonObject rendererJson;
@@ -82,9 +83,21 @@ GdeltEventLayer::GdeltEventLayer(QObject *parent) :
     QJsonDocument rendererDocument(rendererJson);
     QString rendererAsJson = rendererDocument.toJson();
     HeatmapRenderer* gdeltHeatmapRenderer = dynamic_cast<HeatmapRenderer*>(Renderer::fromJson(rendererAsJson));
-    m_overlay->setRenderer(gdeltHeatmapRenderer);
+    m_heatMapRenderer = gdeltHeatmapRenderer;
 
     m_overlay->setPopupEnabled(true);
+}
+
+void GdeltEventLayer::setHeatmapRendering(bool enabled)
+{
+    if (enabled)
+    {
+        m_overlay->setRenderer(m_heatMapRenderer);
+    }
+    else
+    {
+        m_overlay->setRenderer(m_simpleRenderer);
+    }
 }
 
 void GdeltEventLayer::setQueryFilter(const QString &filter)
