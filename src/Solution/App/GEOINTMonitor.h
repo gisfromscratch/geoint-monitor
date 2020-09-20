@@ -27,6 +27,7 @@ class MapQuickView;
 
 class GdeltCalloutData;
 class GdeltEventLayer;
+class WikimapiaPlaceLayer;
 
 #include <QImage>
 #include <QObject>
@@ -80,6 +81,7 @@ private:
 
     GdeltCalloutData* m_lastCalloutData = nullptr;
     GdeltEventLayer* m_gdeltLayer = nullptr;
+    WikimapiaPlaceLayer* m_wikimapiaPlaceLayer = nullptr;
 };
 
 #endif // GEOINTMONITOR_H

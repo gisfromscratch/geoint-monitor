@@ -24,6 +24,8 @@
 #ifndef WIKIMAPIAPLACELAYER_H
 #define WIKIMAPIAPLACELAYER_H
 
+#include "Envelope.h"
+
 class QNetworkReply;
 
 #include <QNetworkAccessManager>
@@ -35,6 +37,10 @@ class WikimapiaPlaceLayer : public QObject
 public:
     explicit WikimapiaPlaceLayer(QObject *parent = nullptr);
 
+    void setSpatialFilter(const Esri::ArcGISRuntime::Envelope &extent);
+
+    void query();
+
 signals:
 
 private slots:
@@ -42,6 +48,7 @@ private slots:
 
 private:
     QNetworkAccessManager* m_networkAccessManager = nullptr;
+    Esri::ArcGISRuntime::Envelope m_spatialFilter;
 };
 
 #endif // WIKIMAPIAPLACELAYER_H

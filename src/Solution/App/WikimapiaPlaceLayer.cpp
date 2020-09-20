@@ -23,14 +23,68 @@
 //
 #include "WikimapiaPlaceLayer.h"
 
+#include "Envelope.h"
+
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QNetworkReply>
+#include <QUuid>
 
-WikimapiaPlaceLayer::WikimapiaPlaceLayer(QObject *parent) : QObject(parent)
+WikimapiaPlaceLayer::WikimapiaPlaceLayer(QObject *parent) :
+    QObject(parent),
+    m_networkAccessManager(new QNetworkAccessManager(this))
 {
+    connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &WikimapiaPlaceLayer::networkRequestFinished);
+}
 
+void WikimapiaPlaceLayer::setSpatialFilter(const Esri::ArcGISRuntime::Envelope &extent)
+{
+    m_spatialFilter = extent;
+}
+
+void WikimapiaPlaceLayer::query()
+{
+    if (m_spatialFilter.isEmpty())
+    {
+        return;
+    }
+
+    QString bboxString = "lon_min=" + QString::number(m_spatialFilter.xMin())
+            + "&lat_min=" + QString::number(m_spatialFilter.yMin())
+            + "&lon_max=" + QString::number(m_spatialFilter.xMax())
+            + "&lat_max=" + QString::number(m_spatialFilter.yMax());
+
+    QString wikimapiaQueryString = "http://api.wikimapia.org/?key=example&function=box&coordsby=latlon& "
+            + bboxString
+            + "&format=json&language=en&page=1&count=50&category=&categories_or=&categories_and=";
+    qDebug() << wikimapiaQueryString;
+    QUrl wikimapiaQueryUrl(wikimapiaQueryString);
+
+    QNetworkRequest wikiMapiaRequest;
+    wikiMapiaRequest.setUrl(wikimapiaQueryUrl);
+    m_networkAccessManager->get(wikiMapiaRequest);
 }
 
 void WikimapiaPlaceLayer::networkRequestFinished(QNetworkReply *reply)
 {
+    if (reply->error())
+    {
+        qDebug() << reply->errorString();
+        return;
+    }
 
+    QByteArray jsonResponse = reply->readAll();
+    QJsonDocument wikiMapiaEventsDocument = QJsonDocument::fromJson(jsonResponse);
+    if (wikiMapiaEventsDocument.isNull())
+    {
+        qDebug() << "JSON is invalid!";
+        return;
+    }
+    if (!wikiMapiaEventsDocument.isObject())
+    {
+        qDebug() << "JSON document is not an object!";
+        return;
+    }
+
+    qDebug() << jsonResponse;
 }

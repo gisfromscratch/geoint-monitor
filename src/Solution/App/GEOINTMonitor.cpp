@@ -14,6 +14,7 @@
 #include "GEOINTMonitor.h"
 
 #include "Basemap.h"
+#include "GeometryEngine.h"
 #include "Graphic.h"
 #include "IdentifyGraphicsOverlayResult.h"
 #include "Map.h"
@@ -22,6 +23,7 @@
 
 #include "GdeltCalloutData.h"
 #include "GdeltEventLayer.h"
+#include "WikimapiaPlaceLayer.h"
 
 #include <QDir>
 #include <QRegularExpression>
@@ -34,7 +36,8 @@ GEOINTMonitor::GEOINTMonitor(QObject* parent /* = nullptr */):
     QObject(parent),
     m_map(new Map(Basemap::openStreetMap(this), this)),
     m_lastCalloutData(new GdeltCalloutData(this)),
-    m_gdeltLayer(new GdeltEventLayer(this))
+    m_gdeltLayer(new GdeltEventLayer(this)),
+    m_wikimapiaPlaceLayer(new WikimapiaPlaceLayer(this))
 {
 }
 
@@ -177,6 +180,15 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
 
         // Only when there is at least one identified graphics
         emit calloutDataChanged();
+    }
+    else
+    {
+        // No graphic identified
+        Viewpoint boundingViewpoint = m_mapView->currentViewpoint(ViewpointType::BoundingGeometry);
+        Envelope boundingBox = boundingViewpoint.targetGeometry();
+        Envelope boundingBoxWgs84 = GeometryEngine::project(boundingBox, SpatialReference::wgs84()).extent();
+        m_wikimapiaPlaceLayer->setSpatialFilter(boundingBoxWgs84);
+        m_wikimapiaPlaceLayer->query();
     }
 
     emit identifyCompleted();
