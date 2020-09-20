@@ -23,7 +23,14 @@
 //
 #include "WikimapiaPlaceLayer.h"
 
+#include <QNetworkReply>
+
 WikimapiaPlaceLayer::WikimapiaPlaceLayer(QObject *parent) : QObject(parent)
+{
+
+}
+
+void WikimapiaPlaceLayer::networkRequestFinished(QNetworkReply *reply)
 {
 
 }

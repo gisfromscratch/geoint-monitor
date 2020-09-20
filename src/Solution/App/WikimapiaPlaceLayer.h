@@ -24,6 +24,9 @@
 #ifndef WIKIMAPIAPLACELAYER_H
 #define WIKIMAPIAPLACELAYER_H
 
+class QNetworkReply;
+
+#include <QNetworkAccessManager>
 #include <QObject>
 
 class WikimapiaPlaceLayer : public QObject
@@ -34,6 +37,11 @@ public:
 
 signals:
 
+private slots:
+    void networkRequestFinished(QNetworkReply* reply);
+
+private:
+    QNetworkAccessManager* m_networkAccessManager = nullptr;
 };
 
 #endif // WIKIMAPIAPLACELAYER_H
