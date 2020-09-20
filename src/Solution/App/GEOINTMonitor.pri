@@ -2,11 +2,13 @@ HEADERS += \
     $$PWD/GdeltCalloutData.h \
     $$PWD/GdeltEventLayer.h \
     $$PWD/AppInfo.h \
-    $$PWD/GEOINTMonitor.h
+    $$PWD/GEOINTMonitor.h \
+    $$PWD/WikimapiaPlaceLayer.h
 
 SOURCES += \
     $$PWD/GdeltCalloutData.cpp \
     $$PWD/GdeltEventLayer.cpp \
+    $$PWD/WikimapiaPlaceLayer.cpp \
     $$PWD/main.cpp \
     $$PWD/GEOINTMonitor.cpp
 
