@@ -66,7 +66,7 @@ WikimapiaPlaceLayer::WikimapiaPlaceLayer(QObject *parent) :
     m_overlay->setRenderer(wikimapiaRenderer);
     m_overlay->setOpacity(0.35f);
 
-    m_labelOverlay->setMinScale(1e5);
+    m_labelOverlay->setMinScale(5e4);
 }
 
 void WikimapiaPlaceLayer::setSpatialFilter(const Esri::ArcGISRuntime::Envelope &extent)
@@ -87,6 +87,7 @@ GraphicsOverlay* WikimapiaPlaceLayer::labelOverlay() const
 void WikimapiaPlaceLayer::query()
 {
     m_overlay->graphics()->clear();
+    m_labelOverlay->graphics()->clear();
 
     if (m_spatialFilter.isEmpty())
     {
