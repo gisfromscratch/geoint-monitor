@@ -64,6 +64,12 @@ void GEOINTMonitor::setMapView(MapQuickView* mapView)
     connect(m_mapView, &MapQuickView::mouseClicked, this, &GEOINTMonitor::mouseClicked);
     connect(m_mapView, &MapQuickView::identifyGraphicsOverlayCompleted, this, &GEOINTMonitor::identifyGraphicsOverlayCompleted);
 
+    // Add the wikimapia query layer
+    GraphicsOverlay* wikimapiaOverlay = m_wikimapiaPlaceLayer->overlay();
+    m_mapView->graphicsOverlays()->append(wikimapiaOverlay);
+    GraphicsOverlay* wikimapiaLabelOverlay = m_wikimapiaPlaceLayer->labelOverlay();
+    m_mapView->graphicsOverlays()->append(wikimapiaLabelOverlay);
+
     // Add the GDELT query layer
     GraphicsOverlay* gdeltOverlay = m_gdeltLayer->overlay();
     m_mapView->graphicsOverlays()->append(gdeltOverlay);
@@ -178,17 +184,10 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
             gdeltGraphic->setSelected(true);
         }
 
+        qDebug() << m_mapView->mapScale();
+
         // Only when there is at least one identified graphics
         emit calloutDataChanged();
-    }
-    else
-    {
-        // No graphic identified
-        Viewpoint boundingViewpoint = m_mapView->currentViewpoint(ViewpointType::BoundingGeometry);
-        Envelope boundingBox = boundingViewpoint.targetGeometry();
-        Envelope boundingBoxWgs84 = GeometryEngine::project(boundingBox, SpatialReference::wgs84()).extent();
-        m_wikimapiaPlaceLayer->setSpatialFilter(boundingBoxWgs84);
-        m_wikimapiaPlaceLayer->query();
     }
 
     emit identifyCompleted();
@@ -221,6 +220,14 @@ void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
     GraphicsOverlay* gdeltOverlay = m_gdeltLayer->overlay();
     gdeltOverlay->clearSelection();
     m_mapView->identifyGraphicsOverlay(gdeltOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups);
+
+    // Query wikimapia
+    Point lowerLeftLocation = m_mapView->screenToLocation(m_lastMouseClickLocation.x() - pixelTolerance, m_lastMouseClickLocation.y() - pixelTolerance);
+    Point upperRightLocation = m_mapView->screenToLocation(m_lastMouseClickLocation.x() + pixelTolerance, m_lastMouseClickLocation.y() + pixelTolerance);
+    Envelope boundingBox(lowerLeftLocation, upperRightLocation);
+    Envelope boundingBoxWgs84 = GeometryEngine::project(boundingBox, SpatialReference::wgs84()).extent();
+    m_wikimapiaPlaceLayer->setSpatialFilter(boundingBoxWgs84);
+    m_wikimapiaPlaceLayer->query();
 }
 
 void GEOINTMonitor::queryGdelt(const QString &queryText) const

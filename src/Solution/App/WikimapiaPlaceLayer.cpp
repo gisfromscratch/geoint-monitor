@@ -24,17 +24,42 @@
 #include "WikimapiaPlaceLayer.h"
 
 #include "Envelope.h"
+#include "FeatureCollectionTable.h"
+#include "GeometryEngine.h"
+#include "Graphic.h"
+#include "GraphicsOverlay.h"
+#include "HeatmapRenderer.h"
+#include "Polygon.h"
+#include "PolygonBuilder.h"
+#include "SimpleFillSymbol.h"
+#include "SimpleLineSymbol.h"
+#include "SimpleRenderer.h"
+#include "TextSymbol.h"
 
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QNetworkReply>
 #include <QUuid>
 
+using namespace Esri::ArcGISRuntime;
+
 WikimapiaPlaceLayer::WikimapiaPlaceLayer(QObject *parent) :
     QObject(parent),
-    m_networkAccessManager(new QNetworkAccessManager(this))
+    m_networkAccessManager(new QNetworkAccessManager(this)),
+    m_overlay(new GraphicsOverlay(this)),
+    m_labelOverlay(new GraphicsOverlay(this))
 {
     connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &WikimapiaPlaceLayer::networkRequestFinished);
+
+    SimpleRenderer* wikimapiaRenderer = new SimpleRenderer(this);
+    SimpleFillSymbol* wikimapiaFillSymbol = new SimpleFillSymbol(SimpleFillSymbolStyle::Solid, Qt::yellow, this);
+    wikimapiaFillSymbol->setOutline(new SimpleLineSymbol(SimpleLineSymbolStyle::Solid, Qt::black, 4, this));
+    wikimapiaRenderer->setSymbol(wikimapiaFillSymbol);
+    m_simpleRenderer = wikimapiaRenderer;
+    m_overlay->setRenderer(wikimapiaRenderer);
+    m_overlay->setOpacity(0.35f);
+
+    m_labelOverlay->setMinScale(1e5);
 }
 
 void WikimapiaPlaceLayer::setSpatialFilter(const Esri::ArcGISRuntime::Envelope &extent)
@@ -42,8 +67,20 @@ void WikimapiaPlaceLayer::setSpatialFilter(const Esri::ArcGISRuntime::Envelope &
     m_spatialFilter = extent;
 }
 
+GraphicsOverlay* WikimapiaPlaceLayer::overlay() const
+{
+    return m_overlay;
+}
+
+GraphicsOverlay* WikimapiaPlaceLayer::labelOverlay() const
+{
+    return m_labelOverlay;
+}
+
 void WikimapiaPlaceLayer::query()
 {
+    m_overlay->graphics()->clear();
+
     if (m_spatialFilter.isEmpty())
     {
         return;
@@ -86,5 +123,38 @@ void WikimapiaPlaceLayer::networkRequestFinished(QNetworkReply *reply)
         return;
     }
 
-    qDebug() << jsonResponse;
+    QJsonObject wikimapiaEventsObject = wikiMapiaEventsDocument.object();
+    QJsonArray wikimapiaEventsArray = wikimapiaEventsObject["folder"].toArray();
+    foreach (const QJsonValue& wikimapiaEvent, wikimapiaEventsArray)
+    {
+        if (wikimapiaEvent.isObject())
+        {
+            QJsonObject wikimapiaEventRecord = wikimapiaEvent.toObject();
+            if (wikimapiaEventRecord.contains("polygon"))
+            {
+                QJsonArray polygonArray = wikimapiaEventRecord["polygon"].toArray();
+                PolygonBuilder polygonBuilder(SpatialReference::wgs84());
+                foreach (const QJsonValue& coordinatePair, polygonArray)
+                {
+                    if (coordinatePair.isObject())
+                    {
+                        QJsonObject coordinates = coordinatePair.toObject();
+                        double x = coordinates["x"].toDouble();
+                        double y = coordinates["y"].toDouble();
+                        polygonBuilder.addPoint(x, y);
+                    }
+                }
+
+                Polygon wikimapiaPolygon = polygonBuilder.toPolygon();
+                Graphic* wikimapiaGraphic = new Graphic(wikimapiaPolygon, this);
+                m_overlay->graphics()->append(wikimapiaGraphic);
+
+                QString wikimapiaEventName = wikimapiaEventRecord["name"].toString();
+                Point wikimapiaPoint = GeometryEngine::labelPoint(wikimapiaPolygon);
+                TextSymbol* wikimapiaTextSymbol = new TextSymbol(wikimapiaEventName, Qt::black, 15, HorizontalAlignment::Center, VerticalAlignment::Middle, this);
+                Graphic* wikimapiaTextGraphic = new Graphic(wikimapiaPoint, wikimapiaTextSymbol, this);
+                m_labelOverlay->graphics()->append(wikimapiaTextGraphic);
+            }
+        }
+    }
 }

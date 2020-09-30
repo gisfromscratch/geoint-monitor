@@ -26,6 +26,17 @@
 
 #include "Envelope.h"
 
+namespace Esri
+{
+namespace ArcGISRuntime
+{
+class FeatureCollectionTable;
+class GraphicsOverlay;
+class Graphic;
+class Renderer;
+}
+}
+
 class QNetworkReply;
 
 #include <QNetworkAccessManager>
@@ -39,6 +50,9 @@ public:
 
     void setSpatialFilter(const Esri::ArcGISRuntime::Envelope &extent);
 
+    Esri::ArcGISRuntime::GraphicsOverlay* overlay() const;
+    Esri::ArcGISRuntime::GraphicsOverlay* labelOverlay() const;
+
     void query();
 
 signals:
@@ -48,6 +62,11 @@ private slots:
 
 private:
     QNetworkAccessManager* m_networkAccessManager = nullptr;
+
+    Esri::ArcGISRuntime::GraphicsOverlay* m_overlay = nullptr;
+    Esri::ArcGISRuntime::Renderer* m_simpleRenderer = nullptr;
+    Esri::ArcGISRuntime::GraphicsOverlay* m_labelOverlay = nullptr;
+
     Esri::ArcGISRuntime::Envelope m_spatialFilter;
 };
 
