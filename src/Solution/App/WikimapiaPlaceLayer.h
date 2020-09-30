@@ -62,6 +62,7 @@ private slots:
 
 private:
     QNetworkAccessManager* m_networkAccessManager = nullptr;
+    QString m_wikimapiaLicenseKey;
 
     Esri::ArcGISRuntime::GraphicsOverlay* m_overlay = nullptr;
     Esri::ArcGISRuntime::Renderer* m_simpleRenderer = nullptr;

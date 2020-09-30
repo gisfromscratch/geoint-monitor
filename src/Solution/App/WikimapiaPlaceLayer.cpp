@@ -39,6 +39,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QNetworkReply>
+#include <QProcessEnvironment>
 #include <QUuid>
 
 using namespace Esri::ArcGISRuntime;
@@ -50,6 +51,12 @@ WikimapiaPlaceLayer::WikimapiaPlaceLayer(QObject *parent) :
     m_labelOverlay(new GraphicsOverlay(this))
 {
     connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &WikimapiaPlaceLayer::networkRequestFinished);
+    QProcessEnvironment systemEnvironment = QProcessEnvironment::systemEnvironment();
+    QString licenseKeyName = "wikimapia.key";
+    if (systemEnvironment.contains(licenseKeyName))
+    {
+        m_wikimapiaLicenseKey = systemEnvironment.value(licenseKeyName);
+    }
 
     SimpleRenderer* wikimapiaRenderer = new SimpleRenderer(this);
     SimpleFillSymbol* wikimapiaFillSymbol = new SimpleFillSymbol(SimpleFillSymbolStyle::Solid, Qt::yellow, this);
@@ -91,7 +98,9 @@ void WikimapiaPlaceLayer::query()
             + "&lon_max=" + QString::number(m_spatialFilter.xMax())
             + "&lat_max=" + QString::number(m_spatialFilter.yMax());
 
-    QString wikimapiaQueryString = "http://api.wikimapia.org/?key=example&function=box&coordsby=latlon& "
+    QString wikimapiaQueryString = "http://api.wikimapia.org/?key="
+            + m_wikimapiaLicenseKey
+            + "&function=box&coordsby=latlon&"
             + bboxString
             + "&format=json&language=en&page=1&count=50&category=&categories_or=&categories_and=";
     qDebug() << wikimapiaQueryString;
