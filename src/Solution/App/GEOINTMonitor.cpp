@@ -23,6 +23,7 @@
 
 #include "GdeltCalloutData.h"
 #include "GdeltEventLayer.h"
+#include "NominatimPlaceLayer.h"
 #include "WikimapiaPlaceLayer.h"
 
 #include <QDir>
@@ -37,6 +38,7 @@ GEOINTMonitor::GEOINTMonitor(QObject* parent /* = nullptr */):
     m_map(new Map(Basemap::openStreetMap(this), this)),
     m_lastCalloutData(new GdeltCalloutData(this)),
     m_gdeltLayer(new GdeltEventLayer(this)),
+    m_nominatimPlaceLayer(new NominatimPlaceLayer(this)),
     m_wikimapiaPlaceLayer(new WikimapiaPlaceLayer(this))
 {
 }
@@ -63,6 +65,12 @@ void GEOINTMonitor::setMapView(MapQuickView* mapView)
     connect(m_mapView, &MapQuickView::exportImageCompleted, this, &GEOINTMonitor::exportMapImageCompleted);
     connect(m_mapView, &MapQuickView::mouseClicked, this, &GEOINTMonitor::mouseClicked);
     connect(m_mapView, &MapQuickView::identifyGraphicsOverlayCompleted, this, &GEOINTMonitor::identifyGraphicsOverlayCompleted);
+
+    // Add the nominatim layer
+    GraphicsOverlay* nominatimOverlay = m_nominatimPlaceLayer->overlay();
+    m_mapView->graphicsOverlays()->append(nominatimOverlay);
+    GraphicsOverlay* nominatimLabelOverlay = m_nominatimPlaceLayer->labelOverlay();
+    m_mapView->graphicsOverlays()->append(nominatimLabelOverlay);
 
     // Add the wikimapia query layer
     GraphicsOverlay* wikimapiaOverlay = m_wikimapiaPlaceLayer->overlay();
@@ -234,6 +242,12 @@ void GEOINTMonitor::queryGdelt(const QString &queryText) const
 {
     m_gdeltLayer->setQueryFilter(queryText);
     m_gdeltLayer->query();
+}
+
+void GEOINTMonitor::queryNominatim(const QString &queryText) const
+{
+    m_nominatimPlaceLayer->setQueryFilter(queryText);
+    m_nominatimPlaceLayer->query();
 }
 
 void GEOINTMonitor::exportMapImageCompleted(QUuid taskId, QImage image)

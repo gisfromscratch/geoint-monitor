@@ -39,6 +39,10 @@ Item {
         model.queryGdelt(queryText);
     }
 
+    function queryNominatim(queryText) {
+        model.queryNominatim(queryText);
+    }
+
     signal mapNotification(string message);
     signal calloutDataChanged(GdeltCalloutData calloutData);
 

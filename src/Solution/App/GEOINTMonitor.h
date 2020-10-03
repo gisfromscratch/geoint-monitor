@@ -27,6 +27,7 @@ class MapQuickView;
 
 class GdeltCalloutData;
 class GdeltEventLayer;
+class NominatimPlaceLayer;
 class WikimapiaPlaceLayer;
 
 #include <QImage>
@@ -52,6 +53,7 @@ public:
     Q_INVOKABLE void activateSimpleRendering() const;
     Q_INVOKABLE void exportMapImage() const;
     Q_INVOKABLE void queryGdelt(const QString& queryText) const;
+    Q_INVOKABLE void queryNominatim(const QString& queryText) const;
     Q_INVOKABLE void selectGraphic(const QString& graphicUid) const;
 
 signals:
@@ -81,6 +83,7 @@ private:
 
     GdeltCalloutData* m_lastCalloutData = nullptr;
     GdeltEventLayer* m_gdeltLayer = nullptr;
+    NominatimPlaceLayer* m_nominatimPlaceLayer = nullptr;
     WikimapiaPlaceLayer* m_wikimapiaPlaceLayer = nullptr;
 };
 

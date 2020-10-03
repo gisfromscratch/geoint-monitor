@@ -54,6 +54,19 @@ ApplicationWindow {
                 }
             }
 
+            TextField {
+                id: placeText
+                Layout.fillWidth: true
+                placeholderText: "<place name>"
+            }
+
+            ToolButton {
+                text: qsTr("Add to map")
+                onClicked: {
+                    monitorForm.queryNominatim(placeText.text);
+                }
+            }
+
             ToolButton {
                 text: qsTr("Export map")
                 onClicked: {
@@ -64,11 +77,11 @@ ApplicationWindow {
             TextField {
                 id: queryText
                 Layout.fillWidth: true
-                text: "climate change"
+                placeholderText: "<search for news>"
             }
 
             ToolButton {
-                text: qsTr("Query GDELT")
+                text: qsTr("Query")
                 onClicked: {
                     gdeltListModel.clear();
                     monitorForm.queryGdelt(queryText.text);
