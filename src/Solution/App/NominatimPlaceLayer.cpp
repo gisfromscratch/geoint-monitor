@@ -180,4 +180,6 @@ void NominatimPlaceLayer::networkRequestFinished(QNetworkReply *reply)
             }
         }
     }
+
+    emit queryFinished();
 }

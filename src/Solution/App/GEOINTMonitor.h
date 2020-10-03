@@ -60,6 +60,7 @@ public:
     Q_INVOKABLE void exportMapImage() const;
     Q_INVOKABLE void queryGdelt(const QString& queryText) const;
     Q_INVOKABLE void queryNominatim(const QString& queryText) const;
+    Q_INVOKABLE void nextPlace();
     Q_INVOKABLE void queryWikimapia();
     Q_INVOKABLE void selectGraphic(const QString& graphicUid) const;
 
@@ -99,6 +100,8 @@ private:
     WikimapiaPlaceLayer* m_wikimapiaPlaceLayer = nullptr;
     bool m_queryWikimapiaEnabled = false;
     Esri::ArcGISRuntime::Envelope m_lastQueriedBoundingBox;
+
+    int m_placeIndex = -1;
 
     bool m_navigating = false;
 };

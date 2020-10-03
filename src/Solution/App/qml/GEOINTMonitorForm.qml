@@ -43,20 +43,24 @@ Item {
         model.clearGdelt();
     }
 
-    function clearNominatim() {
-        model.clearNominatim();
-    }
-
-    function clearWikimapia() {
-        model.clearWikimapia();
-    }
-
     function queryNominatim(queryText) {
         model.queryNominatim(queryText);
     }
 
+    function nextPlace() {
+        model.nextPlace();
+    }
+
+    function clearNominatim() {
+        model.clearNominatim();
+    }
+
     function queryWikimapia() {
         model.queryWikimapia();
+    }
+
+    function clearWikimapia() {
+        model.clearWikimapia();
     }
 
     signal mapNotification(string message);

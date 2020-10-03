@@ -274,6 +274,24 @@ void GEOINTMonitor::queryNominatim(const QString &queryText) const
     m_nominatimPlaceLayer->query();
 }
 
+void GEOINTMonitor::nextPlace()
+{
+    m_placeIndex++;
+    GraphicListModel* nominatimGraphics = m_nominatimPlaceLayer->overlay()->graphics();
+    if (0 == nominatimGraphics->size())
+    {
+        return;
+    }
+
+    if (nominatimGraphics->size() <= m_placeIndex)
+    {
+        m_placeIndex = 0;
+    }
+
+    Graphic* nominatimGraphic = nominatimGraphics->at(m_placeIndex);
+    m_mapView->setViewpointGeometry(nominatimGraphic->geometry());
+}
+
 void GEOINTMonitor::queryWikimapia()
 {
     // Query wikimapia

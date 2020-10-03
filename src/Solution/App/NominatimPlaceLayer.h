@@ -54,6 +54,7 @@ public:
     void query();
 
 signals:
+    void queryFinished();
 
 private slots:
     void networkRequestFinished(QNetworkReply* reply);

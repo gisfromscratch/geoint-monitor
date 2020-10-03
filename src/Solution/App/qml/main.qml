@@ -95,6 +95,13 @@ ApplicationWindow {
                 }
 
                 ToolButton {
+                    text: qsTr("Next place")
+                    onClicked: {
+                        monitorForm.nextPlace();
+                    }
+                }
+
+                ToolButton {
                     text: qsTr("Clear")
                     onClicked: {
                         monitorForm.clearNominatim();
