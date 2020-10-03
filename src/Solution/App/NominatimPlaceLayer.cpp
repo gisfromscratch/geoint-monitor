@@ -52,14 +52,14 @@ NominatimPlaceLayer::NominatimPlaceLayer(QObject *parent) :
     connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &NominatimPlaceLayer::networkRequestFinished);
 
     SimpleRenderer* nominatimRenderer = new SimpleRenderer(this);
-    SimpleFillSymbol* nominatimFillSymbol = new SimpleFillSymbol(SimpleFillSymbolStyle::Solid, Qt::yellow, this);
+    SimpleFillSymbol* nominatimFillSymbol = new SimpleFillSymbol(SimpleFillSymbolStyle::Solid, QColor("#d3c2a6"), this);
     nominatimFillSymbol->setOutline(new SimpleLineSymbol(SimpleLineSymbolStyle::Solid, Qt::black, 4, this));
     nominatimRenderer->setSymbol(nominatimFillSymbol);
     m_overlay->setRenderer(nominatimRenderer);
     m_overlay->setOpacity(0.35f);
 
     SimpleRenderer* nominatimPointRenderer = new SimpleRenderer(this);
-    SimpleMarkerSymbol* nominatimMarkerSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, Qt::yellow, 12, this);
+    SimpleMarkerSymbol* nominatimMarkerSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, QColor("#d3c2a6"), 12, this);
     nominatimMarkerSymbol->setOutline(new SimpleLineSymbol(SimpleLineSymbolStyle::Solid, Qt::black, 4, this));
     nominatimPointRenderer->setSymbol(nominatimMarkerSymbol);
     m_pointOverlay->setRenderer(nominatimPointRenderer);
