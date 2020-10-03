@@ -39,6 +39,18 @@ Item {
         model.queryGdelt(queryText);
     }
 
+    function clearGdelt() {
+        model.clearGdelt();
+    }
+
+    function clearNominatim() {
+        model.clearNominatim();
+    }
+
+    function clearWikimapia() {
+        model.clearWikimapia();
+    }
+
     function queryNominatim(queryText) {
         model.queryNominatim(queryText);
     }

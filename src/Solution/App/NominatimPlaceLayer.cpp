@@ -78,9 +78,6 @@ void NominatimPlaceLayer::setQueryFilter(const QString &filter)
 
 void NominatimPlaceLayer::query()
 {
-    m_overlay->graphics()->clear();
-    m_labelOverlay->graphics()->clear();
-
     if (m_queryFilter.isEmpty())
     {
         return;

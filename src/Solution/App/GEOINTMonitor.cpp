@@ -117,6 +117,23 @@ void GEOINTMonitor::activateSimpleRendering() const
     m_gdeltLayer->setHeatmapRendering(false);
 }
 
+void GEOINTMonitor::clearGdelt() const
+{
+    m_gdeltLayer->overlay()->graphics()->clear();
+}
+
+void GEOINTMonitor::clearNominatim() const
+{
+    m_nominatimPlaceLayer->overlay()->graphics()->clear();
+    m_nominatimPlaceLayer->labelOverlay()->graphics()->clear();
+}
+
+void GEOINTMonitor::clearWikimapia() const
+{
+    m_wikimapiaPlaceLayer->overlay()->graphics()->clear();
+    m_wikimapiaPlaceLayer->labelOverlay()->graphics()->clear();
+}
+
 void GEOINTMonitor::exportMapImage() const
 {
     if (!m_mapView)

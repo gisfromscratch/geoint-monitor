@@ -129,9 +129,6 @@ Graphic* GdeltEventLayer::findGraphic(const QString &graphicUid) const
 
 void GdeltEventLayer::query()
 {
-    m_overlay->graphics()->clear();
-
-    // TODO: Update the base url using the query filter
     QString gdeltQueryString = "https://api.gdeltproject.org/api/v2/geo/geo?query=" + m_queryFilter + "&format=geojson";
     QUrl gdeltQueryUrl(gdeltQueryString);
 

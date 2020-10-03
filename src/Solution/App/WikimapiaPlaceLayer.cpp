@@ -86,9 +86,6 @@ GraphicsOverlay* WikimapiaPlaceLayer::labelOverlay() const
 
 void WikimapiaPlaceLayer::query()
 {
-    m_overlay->graphics()->clear();
-    m_labelOverlay->graphics()->clear();
-
     if (m_spatialFilter.isEmpty())
     {
         return;

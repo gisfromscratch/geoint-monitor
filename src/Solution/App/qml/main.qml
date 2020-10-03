@@ -30,70 +30,98 @@ ApplicationWindow {
     Material.primary: "#434a39"     // BW Dunkelgrün
 
     header: ToolBar {
-        RowLayout {
+        ColumnLayout {
             anchors.fill: parent
 
-            ButtonGroup {
-                buttons: [simpleButton, heatButton]
-            }
+            RowLayout {
 
-            RadioButton {
-                id: simpleButton
-                checked: true
-                text: qsTr("Simple")
-                onClicked: {
-                    monitorForm.activateSimpleRendering();
+                ButtonGroup {
+                    buttons: [simpleButton, heatButton]
+                }
+
+                RadioButton {
+                    id: simpleButton
+                    checked: true
+                    text: qsTr("Simple")
+                    onClicked: {
+                        monitorForm.activateSimpleRendering();
+                    }
+                }
+
+                RadioButton {
+                    id: heatButton
+                    text: qsTr("Heat")
+                    onClicked: {
+                        monitorForm.activateHeatmapRendering();
+                    }
+                }
+
+                TextField {
+                    id: queryText
+                    Layout.fillWidth: true
+                    placeholderText: "<search for news>"
+                }
+
+                ToolButton {
+                    text: qsTr("Query")
+                    onClicked: {
+                        gdeltListModel.clear();
+                        monitorForm.queryGdelt(queryText.text);
+                    }
+                }
+
+                ToolButton {
+                    text: qsTr("Clear")
+                    onClicked: {
+                        gdeltListModel.clear();
+                        monitorForm.clearGdelt();
+                    }
                 }
             }
 
-            RadioButton {
-                id: heatButton
-                text: qsTr("Heat")
-                onClicked: {
-                    monitorForm.activateHeatmapRendering();
+            RowLayout {
+
+                TextField {
+                    id: placeText
+                    Layout.fillWidth: true
+                    placeholderText: "<place name>"
                 }
-            }
 
-            TextField {
-                id: placeText
-                Layout.fillWidth: true
-                placeholderText: "<place name>"
-            }
-
-            ToolButton {
-                text: qsTr("Add to map")
-                onClicked: {
-                    monitorForm.queryNominatim(placeText.text);
+                ToolButton {
+                    text: qsTr("Add to map")
+                    onClicked: {
+                        monitorForm.queryNominatim(placeText.text);
+                    }
                 }
-            }
 
-            ToolButton {
-                id: findPlacesButton
-                enabled: false
-                text: qsTr("Find places")
-                onClicked: {
-                    monitorForm.queryWikimapia();
+                ToolButton {
+                    text: qsTr("Clear")
+                    onClicked: {
+                        monitorForm.clearNominatim();
+                    }
                 }
-            }
 
-            ToolButton {
-                text: qsTr("Export map")
-                onClicked: {
-                    monitorForm.exportMapImage();
+                ToolButton {
+                    id: findPlacesButton
+                    enabled: false
+                    text: qsTr("Find places")
+                    onClicked: {
+                        monitorForm.queryWikimapia();
+                    }
                 }
-            }
 
-            TextField {
-                id: queryText
-                Layout.fillWidth: true
-                placeholderText: "<search for news>"
-            }
+                ToolButton {
+                    text: qsTr("Clear")
+                    onClicked: {
+                        monitorForm.clearWikimapia();
+                    }
+                }
 
-            ToolButton {
-                text: qsTr("Query")
-                onClicked: {
-                    gdeltListModel.clear();
-                    monitorForm.queryGdelt(queryText.text);
+                ToolButton {
+                    text: qsTr("Export map")
+                    onClicked: {
+                        monitorForm.exportMapImage();
+                    }
                 }
             }
         }
