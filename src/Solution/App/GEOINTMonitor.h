@@ -67,6 +67,8 @@ private slots:
     void exportMapImageCompleted(QUuid taskId, QImage image);
     void identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISRuntime::IdentifyGraphicsOverlayResult* identifyResult);
     void mouseClicked(QMouseEvent& mouseEvent);
+    void navigatingChanged();
+    void viewpointChanged();
 
 private:    
     Esri::ArcGISRuntime::MapQuickView* mapView() const;
@@ -85,6 +87,8 @@ private:
     GdeltEventLayer* m_gdeltLayer = nullptr;
     NominatimPlaceLayer* m_nominatimPlaceLayer = nullptr;
     WikimapiaPlaceLayer* m_wikimapiaPlaceLayer = nullptr;
+
+    bool m_navigating = false;
 };
 
 #endif // GEOINTMONITOR_H

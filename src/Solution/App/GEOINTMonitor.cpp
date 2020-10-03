@@ -65,6 +65,8 @@ void GEOINTMonitor::setMapView(MapQuickView* mapView)
     connect(m_mapView, &MapQuickView::exportImageCompleted, this, &GEOINTMonitor::exportMapImageCompleted);
     connect(m_mapView, &MapQuickView::mouseClicked, this, &GEOINTMonitor::mouseClicked);
     connect(m_mapView, &MapQuickView::identifyGraphicsOverlayCompleted, this, &GEOINTMonitor::identifyGraphicsOverlayCompleted);
+    connect(m_mapView, &MapQuickView::navigatingChanged, this, &GEOINTMonitor::navigatingChanged);
+    //connect(m_mapView, &MapQuickView::viewpointChanged, this, &GEOINTMonitor::viewpointChanged);
 
     // Add the nominatim layer
     GraphicsOverlay* nominatimOverlay = m_nominatimPlaceLayer->overlay();
@@ -230,12 +232,14 @@ void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
     m_mapView->identifyGraphicsOverlay(gdeltOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups);
 
     // Query wikimapia
+    /*
     Point lowerLeftLocation = m_mapView->screenToLocation(m_lastMouseClickLocation.x() - pixelTolerance, m_lastMouseClickLocation.y() - pixelTolerance);
     Point upperRightLocation = m_mapView->screenToLocation(m_lastMouseClickLocation.x() + pixelTolerance, m_lastMouseClickLocation.y() + pixelTolerance);
     Envelope boundingBox(lowerLeftLocation, upperRightLocation);
     Envelope boundingBoxWgs84 = GeometryEngine::project(boundingBox, SpatialReference::wgs84()).extent();
     m_wikimapiaPlaceLayer->setSpatialFilter(boundingBoxWgs84);
     m_wikimapiaPlaceLayer->query();
+    */
 }
 
 void GEOINTMonitor::queryGdelt(const QString &queryText) const
@@ -292,4 +296,32 @@ void GEOINTMonitor::selectGraphic(const QString &graphicUid) const
     default:
         return;
     }
+}
+
+void GEOINTMonitor::navigatingChanged()
+{
+    m_navigating = !m_navigating;
+    if (m_navigating)
+    {
+        // Started navigating
+    }
+    else
+    {
+        // Stopped navigating
+        const double minScale = 1e5;
+        if (m_mapView->mapScale() < minScale)
+        {
+            // Query wikimapia
+            Viewpoint boundingViewpoint = m_mapView->currentViewpoint(ViewpointType::BoundingGeometry);
+            Envelope boundingBox = boundingViewpoint.targetGeometry();
+            Envelope boundingBoxWgs84 = GeometryEngine::project(boundingBox, SpatialReference::wgs84()).extent();
+            m_wikimapiaPlaceLayer->setSpatialFilter(boundingBoxWgs84);
+            m_wikimapiaPlaceLayer->query();
+        }
+    }
+}
+
+void GEOINTMonitor::viewpointChanged()
+{
+    qDebug() << "viewpoint changed";
 }
