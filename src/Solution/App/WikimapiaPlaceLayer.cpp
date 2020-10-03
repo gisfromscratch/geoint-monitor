@@ -157,10 +157,16 @@ void WikimapiaPlaceLayer::networkRequestFinished(QNetworkReply *reply)
                 m_overlay->graphics()->append(wikimapiaGraphic);
 
                 QString wikimapiaEventName = wikimapiaEventRecord["name"].toString();
+                QString wikimapiaUrl = wikimapiaEventRecord["url"].toString();
+                wikimapiaGraphic->attributes()->insertAttribute("name", wikimapiaEventName);
+                wikimapiaGraphic->attributes()->insertAttribute("url", wikimapiaUrl);
+
+                /*
                 Point wikimapiaPoint = GeometryEngine::labelPoint(wikimapiaPolygon);
                 TextSymbol* wikimapiaTextSymbol = new TextSymbol(wikimapiaEventName, Qt::black, 15, HorizontalAlignment::Center, VerticalAlignment::Middle, this);
                 Graphic* wikimapiaTextGraphic = new Graphic(wikimapiaPoint, wikimapiaTextSymbol, this);
                 m_labelOverlay->graphics()->append(wikimapiaTextGraphic);
+                */
             }
         }
     }

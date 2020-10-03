@@ -47,7 +47,7 @@ public:
     explicit NominatimPlaceLayer(QObject *parent = nullptr);
 
     Esri::ArcGISRuntime::GraphicsOverlay* overlay() const;
-    Esri::ArcGISRuntime::GraphicsOverlay* labelOverlay() const;
+    Esri::ArcGISRuntime::GraphicsOverlay* pointOverlay() const;
 
     void setQueryFilter(const QString& filter);
 
@@ -64,8 +64,7 @@ private:
     QString m_wikimapiaLicenseKey;
 
     Esri::ArcGISRuntime::GraphicsOverlay* m_overlay = nullptr;
-    Esri::ArcGISRuntime::Renderer* m_simpleRenderer = nullptr;
-    Esri::ArcGISRuntime::GraphicsOverlay* m_labelOverlay = nullptr;
+    Esri::ArcGISRuntime::GraphicsOverlay* m_pointOverlay = nullptr;
 
     QString m_queryFilter;
 };

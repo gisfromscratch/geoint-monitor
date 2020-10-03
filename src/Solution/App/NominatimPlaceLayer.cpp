@@ -32,6 +32,7 @@
 #include "PolygonBuilder.h"
 #include "SimpleFillSymbol.h"
 #include "SimpleLineSymbol.h"
+#include "SimpleMarkerSymbol.h"
 #include "SimpleRenderer.h"
 #include "TextSymbol.h"
 
@@ -46,7 +47,7 @@ NominatimPlaceLayer::NominatimPlaceLayer(QObject *parent) :
     QObject(parent),
     m_networkAccessManager(new QNetworkAccessManager(this)),
     m_overlay(new GraphicsOverlay(this)),
-    m_labelOverlay(new GraphicsOverlay(this))
+    m_pointOverlay(new GraphicsOverlay(this))
 {
     connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &NominatimPlaceLayer::networkRequestFinished);
 
@@ -54,11 +55,14 @@ NominatimPlaceLayer::NominatimPlaceLayer(QObject *parent) :
     SimpleFillSymbol* nominatimFillSymbol = new SimpleFillSymbol(SimpleFillSymbolStyle::Solid, Qt::yellow, this);
     nominatimFillSymbol->setOutline(new SimpleLineSymbol(SimpleLineSymbolStyle::Solid, Qt::black, 4, this));
     nominatimRenderer->setSymbol(nominatimFillSymbol);
-    m_simpleRenderer = nominatimRenderer;
     m_overlay->setRenderer(nominatimRenderer);
     m_overlay->setOpacity(0.35f);
 
-    m_labelOverlay->setMinScale(5e4);
+    SimpleRenderer* nominatimPointRenderer = new SimpleRenderer(this);
+    SimpleMarkerSymbol* nominatimMarkerSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, Qt::yellow, 12, this);
+    nominatimMarkerSymbol->setOutline(new SimpleLineSymbol(SimpleLineSymbolStyle::Solid, Qt::black, 4, this));
+    nominatimPointRenderer->setSymbol(nominatimMarkerSymbol);
+    m_pointOverlay->setRenderer(nominatimPointRenderer);
 }
 
 GraphicsOverlay* NominatimPlaceLayer::overlay() const
@@ -66,9 +70,9 @@ GraphicsOverlay* NominatimPlaceLayer::overlay() const
     return m_overlay;
 }
 
-GraphicsOverlay* NominatimPlaceLayer::labelOverlay() const
+GraphicsOverlay* NominatimPlaceLayer::pointOverlay() const
 {
-    return m_labelOverlay;
+    return m_pointOverlay;
 }
 
 void NominatimPlaceLayer::setQueryFilter(const QString &filter)
@@ -143,7 +147,7 @@ void NominatimPlaceLayer::networkRequestFinished(QNetworkReply *reply)
                             Graphic* geojsonGraphic = new Graphic(location, propertyMap, this);
                             QUuid uniqueId = QUuid::createUuid();
                             geojsonGraphic->attributes()->insertAttribute("uid", uniqueId.toString());
-                            m_overlay->graphics()->append(geojsonGraphic);
+                            m_pointOverlay->graphics()->append(geojsonGraphic);
                         }
                     }
                     else if (0 == QString::compare("Polygon", geometryType))

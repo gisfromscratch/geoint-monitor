@@ -26,6 +26,7 @@
 #include "NominatimPlaceLayer.h"
 #include "WikimapiaPlaceLayer.h"
 
+#include <QDesktopServices>
 #include <QDir>
 #include <QRegularExpression>
 #include <QStringBuilder>
@@ -71,7 +72,7 @@ void GEOINTMonitor::setMapView(MapQuickView* mapView)
     // Add the nominatim layer
     GraphicsOverlay* nominatimOverlay = m_nominatimPlaceLayer->overlay();
     m_mapView->graphicsOverlays()->append(nominatimOverlay);
-    GraphicsOverlay* nominatimLabelOverlay = m_nominatimPlaceLayer->labelOverlay();
+    GraphicsOverlay* nominatimLabelOverlay = m_nominatimPlaceLayer->pointOverlay();
     m_mapView->graphicsOverlays()->append(nominatimLabelOverlay);
 
     // Add the wikimapia query layer
@@ -125,7 +126,7 @@ void GEOINTMonitor::clearGdelt() const
 void GEOINTMonitor::clearNominatim() const
 {
     m_nominatimPlaceLayer->overlay()->graphics()->clear();
-    m_nominatimPlaceLayer->labelOverlay()->graphics()->clear();
+    m_nominatimPlaceLayer->pointOverlay()->graphics()->clear();
 }
 
 void GEOINTMonitor::clearWikimapia() const
@@ -149,6 +150,19 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
     Q_UNUSED(taskId);
     if (!identifyResult->error().isEmpty())
     {
+        return;
+    }
+
+    if (m_wikimapiaPlaceLayer->overlay() == identifyResult->graphicsOverlay())
+    {
+        // Wikimapia overlay results
+        QList<Graphic*> identifiedWikimapiaGraphics = identifyResult->graphics();
+        foreach (Graphic* graphic, identifiedWikimapiaGraphics)
+        {
+            graphic->setSelected(true);
+            QString wikimapiaUrl = graphic->attributes()->attributeValue("url").toString();
+            QDesktopServices::openUrl(QUrl(wikimapiaUrl));
+        }
         return;
     }
 
@@ -250,6 +264,9 @@ void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
     GraphicsOverlay* gdeltOverlay = m_gdeltLayer->overlay();
     gdeltOverlay->clearSelection();
     m_mapView->identifyGraphicsOverlay(gdeltOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups);
+    GraphicsOverlay* wikimapiaOverlay = m_wikimapiaPlaceLayer->overlay();
+    wikimapiaOverlay->clearSelection();
+    m_mapView->identifyGraphicsOverlay(wikimapiaOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups);
 
     // Query wikimapia
     /*
