@@ -68,6 +68,15 @@ ApplicationWindow {
             }
 
             ToolButton {
+                id: findPlacesButton
+                enabled: false
+                text: qsTr("Find places")
+                onClicked: {
+                    monitorForm.queryWikimapia();
+                }
+            }
+
+            ToolButton {
                 text: qsTr("Export map")
                 onClicked: {
                     monitorForm.exportMapImage();
@@ -116,6 +125,10 @@ ApplicationWindow {
                 var lastIndex = gdeltListModel.count;
                 gdeltListModel.append(listElement);
                 gdeltListView.currentIndex = lastIndex;
+            }
+
+            onWikimapiaStateChanged: {
+                findPlacesButton.enabled = enabled;
             }
         }
 

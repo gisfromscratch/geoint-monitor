@@ -102,6 +102,11 @@ GdeltCalloutData* GEOINTMonitor::lastCalloutData() const
     return m_lastCalloutData;
 }
 
+bool GEOINTMonitor::queryWikimapiaEnabled() const
+{
+    return m_queryWikimapiaEnabled;
+}
+
 void GEOINTMonitor::activateHeatmapRendering() const
 {
     m_gdeltLayer->setHeatmapRendering(true);
@@ -194,8 +199,6 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
             gdeltGraphic->setSelected(true);
         }
 
-        qDebug() << m_mapView->mapScale();
-
         // Only when there is at least one identified graphics
         emit calloutDataChanged();
     }
@@ -252,6 +255,27 @@ void GEOINTMonitor::queryNominatim(const QString &queryText) const
 {
     m_nominatimPlaceLayer->setQueryFilter(queryText);
     m_nominatimPlaceLayer->query();
+}
+
+void GEOINTMonitor::queryWikimapia()
+{
+    // Query wikimapia
+    Viewpoint boundingViewpoint = m_mapView->currentViewpoint(ViewpointType::BoundingGeometry);
+    Envelope boundingBox = boundingViewpoint.targetGeometry();
+    Envelope boundingBoxWgs84 = GeometryEngine::project(boundingBox, SpatialReference::wgs84()).extent();
+    if (!m_lastQueriedBoundingBox.isEmpty())
+    {
+        const double wgsCoordinateTolerance = 0.01;
+        if (m_lastQueriedBoundingBox.equalsWithTolerance(boundingBoxWgs84, wgsCoordinateTolerance))
+        {
+            // Viewpoint did not changed that much
+            return;
+        }
+    }
+    m_lastQueriedBoundingBox = boundingBoxWgs84;
+
+    m_wikimapiaPlaceLayer->setSpatialFilter(boundingBoxWgs84);
+    m_wikimapiaPlaceLayer->query();
 }
 
 void GEOINTMonitor::exportMapImageCompleted(QUuid taskId, QImage image)
@@ -314,23 +338,19 @@ void GEOINTMonitor::navigatingChanged()
         const double minScale = 1e5;
         if (m_mapView->mapScale() < minScale)
         {
-            // Query wikimapia
-            Viewpoint boundingViewpoint = m_mapView->currentViewpoint(ViewpointType::BoundingGeometry);
-            Envelope boundingBox = boundingViewpoint.targetGeometry();
-            Envelope boundingBoxWgs84 = GeometryEngine::project(boundingBox, SpatialReference::wgs84()).extent();
-            if (!m_lastQueriedBoundingBox.isEmpty())
+            if (!m_queryWikimapiaEnabled)
             {
-                const double wgsCoordinateTolerance = 0.01;
-                if (m_lastQueriedBoundingBox.equalsWithTolerance(boundingBoxWgs84, wgsCoordinateTolerance))
-                {
-                    // Viewpoint did not changed that much
-                    return;
-                }
+                m_queryWikimapiaEnabled = true;
+                emit wikimapiaStateChanged();
             }
-            m_lastQueriedBoundingBox = boundingBoxWgs84;
-
-            m_wikimapiaPlaceLayer->setSpatialFilter(boundingBoxWgs84);
-            m_wikimapiaPlaceLayer->query();
+        }
+        else
+        {
+            if (m_queryWikimapiaEnabled)
+            {
+                m_queryWikimapiaEnabled = false;
+                emit wikimapiaStateChanged();
+            }
         }
     }
 }

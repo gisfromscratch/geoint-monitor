@@ -43,8 +43,13 @@ Item {
         model.queryNominatim(queryText);
     }
 
+    function queryWikimapia() {
+        model.queryWikimapia();
+    }
+
     signal mapNotification(string message);
     signal calloutDataChanged(GdeltCalloutData calloutData);
+    signal wikimapiaStateChanged(bool enabled);
 
     // Create MapQuickView here, and create its Map etc. in C++ code
     MapView {
@@ -106,6 +111,10 @@ Item {
 
         onMapImageExported: {
             mapForm.mapNotification(model.lastMapImageFilePath);
+        }
+
+        onWikimapiaStateChanged: {
+            mapForm.wikimapiaStateChanged(model.queryWikimapiaEnabled);
         }
     }
 }

@@ -46,6 +46,7 @@ class GEOINTMonitor : public QObject
     Q_PROPERTY(QString lastMapImageFilePath READ lastMapImageFilePath NOTIFY mapImageExported)
     Q_PROPERTY(QPoint lastMouseClickLocation READ lastMouseClickLocation NOTIFY mouseClickLocationChanged)
     Q_PROPERTY(GdeltCalloutData* lastCalloutData READ lastCalloutData NOTIFY calloutDataChanged)
+    Q_PROPERTY(bool queryWikimapiaEnabled READ queryWikimapiaEnabled NOTIFY wikimapiaStateChanged)
 
 public:
     explicit GEOINTMonitor(QObject* parent = nullptr);
@@ -56,6 +57,7 @@ public:
     Q_INVOKABLE void exportMapImage() const;
     Q_INVOKABLE void queryGdelt(const QString& queryText) const;
     Q_INVOKABLE void queryNominatim(const QString& queryText) const;
+    Q_INVOKABLE void queryWikimapia();
     Q_INVOKABLE void selectGraphic(const QString& graphicUid) const;
 
 signals:
@@ -64,6 +66,7 @@ signals:
     void mapViewChanged();
     void mouseClickLocationChanged();
     void calloutDataChanged();
+    void wikimapiaStateChanged();
 
 private slots:
     void exportMapImageCompleted(QUuid taskId, QImage image);
@@ -80,6 +83,8 @@ private:
     QPoint lastMouseClickLocation() const;
     GdeltCalloutData* lastCalloutData() const;
 
+    bool queryWikimapiaEnabled() const;
+
     Esri::ArcGISRuntime::Map* m_map = nullptr;
     Esri::ArcGISRuntime::MapQuickView* m_mapView = nullptr;
     QString m_lastMapImageFilePath;
@@ -89,6 +94,7 @@ private:
     GdeltEventLayer* m_gdeltLayer = nullptr;
     NominatimPlaceLayer* m_nominatimPlaceLayer = nullptr;
     WikimapiaPlaceLayer* m_wikimapiaPlaceLayer = nullptr;
+    bool m_queryWikimapiaEnabled = false;
     Esri::ArcGISRuntime::Envelope m_lastQueriedBoundingBox;
 
     bool m_navigating = false;
