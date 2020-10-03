@@ -14,6 +14,8 @@
 #ifndef GEOINTMONITOR_H
 #define GEOINTMONITOR_H
 
+#include "Envelope.h"
+
 namespace Esri
 {
 namespace ArcGISRuntime
@@ -87,6 +89,7 @@ private:
     GdeltEventLayer* m_gdeltLayer = nullptr;
     NominatimPlaceLayer* m_nominatimPlaceLayer = nullptr;
     WikimapiaPlaceLayer* m_wikimapiaPlaceLayer = nullptr;
+    Esri::ArcGISRuntime::Envelope m_lastQueriedBoundingBox;
 
     bool m_navigating = false;
 };

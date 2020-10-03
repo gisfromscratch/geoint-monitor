@@ -304,10 +304,13 @@ void GEOINTMonitor::navigatingChanged()
     if (m_navigating)
     {
         // Started navigating
+        //qDebug() << "START";
     }
     else
     {
         // Stopped navigating
+        //qDebug() << "STOPP";
+
         const double minScale = 1e5;
         if (m_mapView->mapScale() < minScale)
         {
@@ -315,6 +318,17 @@ void GEOINTMonitor::navigatingChanged()
             Viewpoint boundingViewpoint = m_mapView->currentViewpoint(ViewpointType::BoundingGeometry);
             Envelope boundingBox = boundingViewpoint.targetGeometry();
             Envelope boundingBoxWgs84 = GeometryEngine::project(boundingBox, SpatialReference::wgs84()).extent();
+            if (!m_lastQueriedBoundingBox.isEmpty())
+            {
+                const double wgsCoordinateTolerance = 0.01;
+                if (m_lastQueriedBoundingBox.equalsWithTolerance(boundingBoxWgs84, wgsCoordinateTolerance))
+                {
+                    // Viewpoint did not changed that much
+                    return;
+                }
+            }
+            m_lastQueriedBoundingBox = boundingBoxWgs84;
+
             m_wikimapiaPlaceLayer->setSpatialFilter(boundingBoxWgs84);
             m_wikimapiaPlaceLayer->query();
         }
