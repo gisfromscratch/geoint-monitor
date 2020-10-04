@@ -77,7 +77,7 @@ GdeltEventLayer::GdeltEventLayer(QObject *parent) :
     colorStopsArray.push_back(firstColorStop);
     colorStopsArray.push_back(secondColorStop);
 
-    rendererJson.insert("maxPixelIntensity", 256);
+    rendererJson.insert("maxPixelIntensity", 50);
     rendererJson.insert("minPixelIntensity", 0);
 
     QJsonDocument rendererDocument(rendererJson);
