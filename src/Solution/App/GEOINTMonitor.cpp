@@ -329,6 +329,7 @@ void GEOINTMonitor::queryWikimapia()
     Viewpoint boundingViewpoint = m_mapView->currentViewpoint(ViewpointType::BoundingGeometry);
     Envelope boundingBox = boundingViewpoint.targetGeometry();
     Envelope boundingBoxWgs84 = GeometryEngine::project(boundingBox, SpatialReference::wgs84()).extent();
+    /*
     if (!m_lastQueriedBoundingBox.isEmpty())
     {
         const double wgsCoordinateTolerance = 0.01;
@@ -339,6 +340,7 @@ void GEOINTMonitor::queryWikimapia()
         }
     }
     m_lastQueriedBoundingBox = boundingBoxWgs84;
+    */
 
     m_wikimapiaPlaceLayer->setSpatialFilter(boundingBoxWgs84);
     m_wikimapiaPlaceLayer->query();
