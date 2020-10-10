@@ -29,6 +29,6 @@ equals(QT_MAJOR_VERSION, 5) {
 	}
 }
 
-ARCGIS_RUNTIME_VERSION = 100.7
+ARCGIS_RUNTIME_VERSION = 100.9
 include($$PWD/arcgisruntime.pri)
 include(GEOINTMonitor.pri)
