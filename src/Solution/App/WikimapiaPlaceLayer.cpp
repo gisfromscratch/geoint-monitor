@@ -101,7 +101,7 @@ void WikimapiaPlaceLayer::query()
             + "&function=box&coordsby=latlon&"
             + bboxString
             + "&format=json&language=en&page=1&count=50&category=&categories_or=&categories_and=";
-    qDebug() << wikimapiaQueryString;
+    //qDebug() << wikimapiaQueryString;
     QUrl wikimapiaQueryUrl(wikimapiaQueryString);
 
     QNetworkRequest wikiMapiaRequest;
