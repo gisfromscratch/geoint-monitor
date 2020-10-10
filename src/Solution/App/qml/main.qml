@@ -66,7 +66,16 @@ ApplicationWindow {
                     text: qsTr("Query")
                     onClicked: {
                         gdeltListModel.clear();
-                        monitorForm.queryGdelt(queryText.text);
+                        monitorForm.queryGdelt(queryText.text, false);
+                    }
+                }
+
+                ToolButton {
+                    id: findEventsButton
+                    text: qsTr("Find events")
+                    onClicked: {
+                        gdeltListModel.clear();
+                        monitorForm.queryGdelt(queryText.text, true);
                     }
                 }
 

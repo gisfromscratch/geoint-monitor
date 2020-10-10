@@ -24,6 +24,7 @@
 #include "GdeltEventLayer.h"
 
 #include "FeatureCollectionTable.h"
+#include "GeometryEngine.h"
 #include "Graphic.h"
 #include "GraphicsOverlay.h"
 #include "HeatmapRenderer.h"
@@ -105,6 +106,11 @@ void GdeltEventLayer::setQueryFilter(const QString &filter)
     m_queryFilter = filter;
 }
 
+void GdeltEventLayer::setSpatialFilter(const Esri::ArcGISRuntime::Envelope &extent)
+{
+    m_spatialFilter = extent;
+}
+
 GraphicsOverlay* GdeltEventLayer::overlay() const
 {
     return m_overlay;
@@ -129,7 +135,39 @@ Graphic* GdeltEventLayer::findGraphic(const QString &graphicUid) const
 
 void GdeltEventLayer::query()
 {
-    QString gdeltQueryString = "https://api.gdeltproject.org/api/v2/geo/geo?query=" + m_queryFilter + "&format=geojson";
+    QString nearFilter = "";
+    if (!m_spatialFilter.isEmpty())
+    {
+        //TODO: Using center point having a coordinate equal 0.0 causes GDELT error!
+        Point center = m_spatialFilter.center();
+        nearFilter = "near:"
+                + QString::number(center.y())
+                + ","
+                + QString::number(center.x());
+        Point lowerLeft = Point(m_spatialFilter.xMin(), m_spatialFilter.yMin(), m_spatialFilter.spatialReference());
+        Point upperRight = Point(m_spatialFilter.xMax(), m_spatialFilter.yMax(), m_spatialFilter.spatialReference());
+        GeodeticDistanceResult distanceResult = GeometryEngine::distanceGeodetic(lowerLeft, upperRight, LinearUnit::kilometers(), AngularUnit::degrees(), GeodeticCurveType::Geodesic);
+        double searchDistance = distanceResult.distance();
+        if (200 < searchDistance)
+        {
+            //TODO: Search distances more than 200 kilometers are not supported by GDELT!
+            searchDistance = 200;
+        }
+
+        // Search distance must be an integer
+        nearFilter += ","
+            + QString::number(int(searchDistance))
+            + "km";
+        if (!m_queryFilter.isEmpty())
+        {
+            nearFilter = " AND " + nearFilter;
+        }
+    }
+
+    QString gdeltQueryString = "https://api.gdeltproject.org/api/v2/geo/geo?query="
+            + m_queryFilter
+            + nearFilter
+            + "&format=geojson";
     QUrl gdeltQueryUrl(gdeltQueryString);
 
     QNetworkRequest gdeltRequest;

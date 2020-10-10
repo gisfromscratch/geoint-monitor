@@ -24,6 +24,8 @@
 #ifndef GDELTEVENTLAYER_H
 #define GDELTEVENTLAYER_H
 
+#include "Envelope.h"
+
 namespace Esri
 {
 namespace ArcGISRuntime
@@ -50,6 +52,8 @@ public:
 
     void setQueryFilter(const QString& filter);
 
+    void setSpatialFilter(const Esri::ArcGISRuntime::Envelope &extent);
+
     Esri::ArcGISRuntime::GraphicsOverlay* overlay() const;
 
     Esri::ArcGISRuntime::Graphic* findGraphic(const QString& graphicUid) const;
@@ -70,6 +74,7 @@ private:
     Esri::ArcGISRuntime::Renderer* m_heatMapRenderer = nullptr;
 
     QString m_queryFilter;
+    Esri::ArcGISRuntime::Envelope m_spatialFilter;
 };
 
 #endif // GDELTEVENTLAYER_H

@@ -35,8 +35,8 @@ Item {
         model.selectGraphic(graphicUid);
     }
 
-    function queryGdelt(queryText) {
-        model.queryGdelt(queryText);
+    function queryGdelt(queryText, useExtent) {
+        model.queryGdelt(queryText, useExtent);
     }
 
     function clearGdelt() {

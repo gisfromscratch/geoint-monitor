@@ -279,14 +279,28 @@ void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
     */
 }
 
-void GEOINTMonitor::queryGdelt(const QString &queryText) const
+void GEOINTMonitor::queryGdelt(const QString &queryText, bool useExtent) const
 {
+    // Query GDELT
+    if (useExtent)
+    {
+        Viewpoint boundingViewpoint = m_mapView->currentViewpoint(ViewpointType::BoundingGeometry);
+        Envelope boundingBox = boundingViewpoint.targetGeometry();
+        Envelope boundingBoxWgs84 = GeometryEngine::project(boundingBox, SpatialReference::wgs84()).extent();
+        m_gdeltLayer->setSpatialFilter(boundingBoxWgs84);
+    }
+    else
+    {
+        // Set an empty envelope as no spatial filter
+        m_gdeltLayer->setSpatialFilter(Envelope());
+    }
     m_gdeltLayer->setQueryFilter(queryText);
     m_gdeltLayer->query();
 }
 
 void GEOINTMonitor::queryNominatim(const QString &queryText) const
 {
+    // Query OSM Nominatim
     m_nominatimPlaceLayer->setQueryFilter(queryText);
     m_nominatimPlaceLayer->query();
 }
