@@ -28,6 +28,7 @@
 #include <QMessageBox>
 #include <QProcessEnvironment>
 #include <QSettings>
+//#include <QSslSocket>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
 
@@ -46,6 +47,7 @@ using namespace Esri::ArcGISRuntime;
 
 int main(int argc, char *argv[])
 {
+    //qDebug() << QSslSocket::sslLibraryBuildVersionString();
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
 
