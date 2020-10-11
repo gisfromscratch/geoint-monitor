@@ -4,7 +4,7 @@ The GEOINT Monitor is a desktop map application visualizing occurred events worl
 ![GEOINT Monitor](images/GEOINT_Monitor.png)
 
 ## Software requirements
-- [ArcGIS Runtime Qt](https://developers.arcgis.com/qt/) Version 100.7
+- [ArcGIS Runtime Qt](https://developers.arcgis.com/qt/) Version 100.9
 
 ## License
 - GNU Lesser General Public License v3.0, see [license file](https://github.com/gisfromscratch/geoint-monitor/blob/master/LICENSE)
