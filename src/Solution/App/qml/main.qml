@@ -158,23 +158,25 @@ ApplicationWindow {
             }
 
             onCalloutDataChanged: {
+                // Dictionary of { url: listIndex }
                 var knownUrls = {};
                 var elementCount = gdeltListModel.count;
                 for (var elementIndex = 0; elementIndex < elementCount; elementIndex++) {
                     var gdeltListElement = gdeltListModel.get(elementIndex);
                     var url = gdeltListElement.url;
                     if (!(url in knownUrls)) {
-                        knownUrls[url] = gdeltListElement;
+                        knownUrls[url] = elementIndex;
                     }
                 }
 
-                var lastIndex = gdeltListModel.count;
-
                 // Add new urls as list elements
+                var selectedIndex = -1;
                 var dataLength = calloutData.length;
                 for (var index = 0; index < dataLength; index++) {
                     var link = calloutData[index].link;
-                    if (!(link in knownUrls)) {
+                    if (link in knownUrls) {
+                        selectedIndex = knownUrls[link];
+                    } else {
                         var listElement = {
                             uid: calloutData[index].uid,
                             title: calloutData[index].title,
@@ -182,13 +184,14 @@ ApplicationWindow {
                             url: calloutData[index].link
                         };
                         gdeltListModel.append(listElement);
-                        knownUrls[url] = listElement;
+                        knownUrls[link] = gdeltListModel.count - 1;
+                        selectedIndex = knownUrls[link];
                     }
                 }
 
                 // Select the first new list element
-                if (lastIndex < gdeltListModel.count) {
-                    gdeltListView.currentIndex = lastIndex;
+                if (-1 !== selectedIndex) {
+                    gdeltListView.currentIndex = selectedIndex;
                 }
             }
 

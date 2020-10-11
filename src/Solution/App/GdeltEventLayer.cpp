@@ -220,12 +220,33 @@ void GdeltEventLayer::networkRequestFinished(QNetworkReply* reply)
                             double y = coordinatesArray[1].toDouble();
                             QJsonObject properties = gdeltFeature["properties"].toObject();
                             QVariantMap propertyMap = properties.toVariantMap();
+                            bool eventIsNew = true;
+                            if (propertyMap.contains("html")) {
+                                // Check if a graphic is refering to the same event
+                                QString eventHtmlValue = propertyMap.value("html").toString();
+                                GraphicListModel* graphics = m_overlay->graphics();
+                                int graphicCount = graphics->size();
+                                for (int graphicIndex = 0; graphicIndex < graphicCount; graphicIndex++)
+                                {
+                                    Graphic* existingGraphic = graphics->at(graphicIndex);
+                                    QString existingHtmlValue = existingGraphic->attributes()->attributeValue("html").toString();
+                                    if (0 == eventHtmlValue.compare(existingHtmlValue))
+                                    {
+                                        // Html is already used by an existing graphic
+                                        eventIsNew = false;
+                                        break;
+                                    }
+                                }
+                            }
 
-                            Point location(x, y, SpatialReference::wgs84());
-                            Graphic* gdeltGraphic = new Graphic(location, propertyMap, this);
-                            QUuid uniqueId = QUuid::createUuid();
-                            gdeltGraphic->attributes()->insertAttribute("uid", uniqueId.toString());
-                            m_overlay->graphics()->append(gdeltGraphic);
+                            if (eventIsNew)
+                            {
+                                Point location(x, y, SpatialReference::wgs84());
+                                Graphic* gdeltGraphic = new Graphic(location, propertyMap, this);
+                                QUuid uniqueId = QUuid::createUuid();
+                                gdeltGraphic->attributes()->insertAttribute("uid", uniqueId.toString());
+                                m_overlay->graphics()->append(gdeltGraphic);
+                            }
                         }
                     }
                 }

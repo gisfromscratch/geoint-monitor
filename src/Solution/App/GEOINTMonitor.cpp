@@ -171,6 +171,8 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
     foreach (Graphic* graphic, identifiedGraphics)
     {
         m_mapView->calloutData()->setTitle("GDELT Graphic");
+
+        //TODO: Liftetime is bound to the underlying graphic, could be serious!
         GdeltCalloutData* calloutData = new GdeltCalloutData(graphic);
 
         AttributeListModel* gdeltAttributesModel = graphic->attributes();
