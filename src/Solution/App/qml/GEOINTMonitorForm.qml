@@ -64,7 +64,7 @@ Item {
     }
 
     signal mapNotification(string message);
-    signal calloutDataChanged(GdeltCalloutData calloutData);
+    signal calloutDataChanged(var calloutData);
     signal wikimapiaStateChanged(bool enabled);
 
     // Create MapQuickView here, and create its Map etc. in C++ code

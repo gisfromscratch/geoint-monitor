@@ -158,17 +158,38 @@ ApplicationWindow {
             }
 
             onCalloutDataChanged: {
-                // Add new list element and select it
-                var listElement = {
-                    uid: calloutData.uid,
-                    title: calloutData.title,
-                    detail: calloutData.detail,
-                    url: calloutData.link
-                };
+                var knownUrls = {};
+                var elementCount = gdeltListModel.count;
+                for (var elementIndex = 0; elementIndex < elementCount; elementIndex++) {
+                    var gdeltListElement = gdeltListModel.get(elementIndex);
+                    var url = gdeltListElement.url;
+                    if (!(url in knownUrls)) {
+                        knownUrls[url] = gdeltListElement;
+                    }
+                }
 
                 var lastIndex = gdeltListModel.count;
-                gdeltListModel.append(listElement);
-                gdeltListView.currentIndex = lastIndex;
+
+                // Add new urls as list elements
+                var dataLength = calloutData.length;
+                for (var index = 0; index < dataLength; index++) {
+                    var link = calloutData[index].link;
+                    if (!(link in knownUrls)) {
+                        var listElement = {
+                            uid: calloutData[index].uid,
+                            title: calloutData[index].title,
+                            detail: calloutData[index].detail,
+                            url: calloutData[index].link
+                        };
+                        gdeltListModel.append(listElement);
+                        knownUrls[url] = listElement;
+                    }
+                }
+
+                // Select the first new list element
+                if (lastIndex < gdeltListModel.count) {
+                    gdeltListView.currentIndex = lastIndex;
+                }
             }
 
             onWikimapiaStateChanged: {

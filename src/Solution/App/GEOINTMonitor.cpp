@@ -37,7 +37,6 @@ using namespace Esri::ArcGISRuntime;
 GEOINTMonitor::GEOINTMonitor(QObject* parent /* = nullptr */):
     QObject(parent),
     m_map(new Map(Basemap::openStreetMap(this), this)),
-    m_lastCalloutData(new GdeltCalloutData(this)),
     m_gdeltLayer(new GdeltEventLayer(this)),
     m_nominatimPlaceLayer(new NominatimPlaceLayer(this)),
     m_wikimapiaPlaceLayer(new WikimapiaPlaceLayer(this))
@@ -98,7 +97,7 @@ QPoint GEOINTMonitor::lastMouseClickLocation() const
     return m_lastMouseClickLocation;
 }
 
-GdeltCalloutData* GEOINTMonitor::lastCalloutData() const
+QVariantList GEOINTMonitor::lastCalloutData() const
 {
     return m_lastCalloutData;
 }
@@ -169,9 +168,10 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
     QRegularExpression titlePattern("title=\"(?<title>[^\"]+)\"");
     QRegularExpression hrefPattern("href=\"(?<href>[^\"]+)\"");
     QList<Graphic*> identifiedGraphics = identifyResult->graphics();
-    foreach (const Graphic* graphic, identifiedGraphics)
+    foreach (Graphic* graphic, identifiedGraphics)
     {
         m_mapView->calloutData()->setTitle("GDELT Graphic");
+        GdeltCalloutData* calloutData = new GdeltCalloutData(graphic);
 
         AttributeListModel* gdeltAttributesModel = graphic->attributes();
         QStringList gdeltAttributeNames = gdeltAttributesModel->attributeNames();
@@ -182,7 +182,7 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
             if (0 == gdeltAttributeName.compare("name"))
             {
                 m_mapView->calloutData()->setTitle(gdeltAttributeValueAsString);
-                m_lastCalloutData->setTitle(gdeltAttributeValueAsString);
+                calloutData->setTitle(gdeltAttributeValueAsString);
             }
             else if (0 == gdeltAttributeName.compare("html"))
             {
@@ -191,12 +191,12 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
                 {
                     QString title = titleMatch.captured("title");
                     m_mapView->calloutData()->setDetail(title);
-                    m_lastCalloutData->setDetail(title);
+                    calloutData->setDetail(title);
                 }
                 else
                 {
                     m_mapView->calloutData()->setDetail(gdeltAttributeValueAsString);
-                    m_lastCalloutData->setDetail(gdeltAttributeValueAsString);
+                    calloutData->setDetail(gdeltAttributeValueAsString);
                 }
 
                 QRegularExpressionMatch hrefMatch = hrefPattern.match(gdeltAttributeValueAsString);
@@ -204,7 +204,7 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
                 {
                     // Set the news url
                     QString href = hrefMatch.captured("href");
-                    m_lastCalloutData->setLink(href);
+                    calloutData->setLink(href);
                 }
             }
             else if (0 == gdeltAttributeName.compare("shareimage"))
@@ -213,9 +213,13 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
             }
             else if (0 == gdeltAttributeName.compare("uid"))
             {
-                m_lastCalloutData->setUniqueId(gdeltAttributeValueAsString);
+                calloutData->setUniqueId(gdeltAttributeValueAsString);
             }
         }
+
+        // Select the graphic and add the callout data
+        graphic->setSelected(true);
+        m_lastCalloutData.append(QVariant::fromValue(calloutData));
 
         // TODO: Ugly UI do not show
         //m_mapView->calloutData()->setVisible(true);
@@ -223,13 +227,6 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
 
     if (!identifiedGraphics.empty())
     {
-        // Select last identified graphic
-        Graphic* gdeltGraphic = m_gdeltLayer->findGraphic(m_lastCalloutData->uniqueId());
-        if (nullptr != gdeltGraphic)
-        {
-            gdeltGraphic->setSelected(true);
-        }
-
         // Only when there is at least one identified graphics
         emit calloutDataChanged();
     }
@@ -259,14 +256,18 @@ void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
     m_mapView->calloutData()->setLocation(mapClickLocation);
 
     // Identify the graphics
-    const double pixelTolerance = 12;
+    const double pixelTolerance = 3;
+    const int maxResults = 50;
     bool onlyPopups = false;
     GraphicsOverlay* gdeltOverlay = m_gdeltLayer->overlay();
     gdeltOverlay->clearSelection();
-    m_mapView->identifyGraphicsOverlay(gdeltOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups);
+    m_mapView->identifyGraphicsOverlay(gdeltOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups, maxResults);
     GraphicsOverlay* wikimapiaOverlay = m_wikimapiaPlaceLayer->overlay();
     wikimapiaOverlay->clearSelection();
-    m_mapView->identifyGraphicsOverlay(wikimapiaOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups);
+    m_mapView->identifyGraphicsOverlay(wikimapiaOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups, maxResults);
+
+    // Clear the callout data
+    m_lastCalloutData.clear();
 
     // Query wikimapia
     /*

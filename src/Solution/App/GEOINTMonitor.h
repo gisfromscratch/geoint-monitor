@@ -45,7 +45,7 @@ class GEOINTMonitor : public QObject
     Q_PROPERTY(Esri::ArcGISRuntime::MapQuickView* mapView READ mapView WRITE setMapView NOTIFY mapViewChanged)
     Q_PROPERTY(QString lastMapImageFilePath READ lastMapImageFilePath NOTIFY mapImageExported)
     Q_PROPERTY(QPoint lastMouseClickLocation READ lastMouseClickLocation NOTIFY mouseClickLocationChanged)
-    Q_PROPERTY(GdeltCalloutData* lastCalloutData READ lastCalloutData NOTIFY calloutDataChanged)
+    Q_PROPERTY(QVariantList lastCalloutData READ lastCalloutData NOTIFY calloutDataChanged)
     Q_PROPERTY(bool queryWikimapiaEnabled READ queryWikimapiaEnabled NOTIFY wikimapiaStateChanged)
 
 public:
@@ -85,7 +85,7 @@ private:
 
     QString lastMapImageFilePath() const;
     QPoint lastMouseClickLocation() const;
-    GdeltCalloutData* lastCalloutData() const;
+    QVariantList lastCalloutData() const;
 
     bool queryWikimapiaEnabled() const;
 
@@ -94,7 +94,7 @@ private:
     QString m_lastMapImageFilePath;
     QPoint m_lastMouseClickLocation;
 
-    GdeltCalloutData* m_lastCalloutData = nullptr;
+    QVariantList m_lastCalloutData;
     GdeltEventLayer* m_gdeltLayer = nullptr;
     NominatimPlaceLayer* m_nominatimPlaceLayer = nullptr;
     WikimapiaPlaceLayer* m_wikimapiaPlaceLayer = nullptr;
