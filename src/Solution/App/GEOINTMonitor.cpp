@@ -312,18 +312,28 @@ void GEOINTMonitor::nextPlace()
 {
     m_placeIndex++;
     GraphicListModel* nominatimGraphics = m_nominatimPlaceLayer->overlay()->graphics();
-    if (0 == nominatimGraphics->size())
+    GraphicListModel* nominatimPointGraphics = m_nominatimPlaceLayer->pointOverlay()->graphics();
+    if (0 == nominatimGraphics->size() && 0 == nominatimPointGraphics->size())
     {
         return;
     }
 
-    if (nominatimGraphics->size() <= m_placeIndex)
+    if (nominatimGraphics->size() + nominatimPointGraphics->size() <= m_placeIndex)
     {
         m_placeIndex = 0;
     }
 
-    Graphic* nominatimGraphic = nominatimGraphics->at(m_placeIndex);
-    m_mapView->setViewpointGeometry(nominatimGraphic->geometry());
+    if (m_placeIndex < nominatimGraphics->size())
+    {
+        Graphic* nominatimGraphic = nominatimGraphics->at(m_placeIndex);
+        m_mapView->setViewpointGeometry(nominatimGraphic->geometry());
+    }
+    else if (m_placeIndex < nominatimGraphics->size() + nominatimPointGraphics->size())
+    {
+        Graphic* nominatimPointGraphic = nominatimPointGraphics->at(m_placeIndex - nominatimGraphics->size());
+        Point nominatimLocation = static_cast<Point>(nominatimPointGraphic->geometry());
+        m_mapView->setViewpointCenter(nominatimLocation);
+    }
 }
 
 void GEOINTMonitor::queryWikimapia()
