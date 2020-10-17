@@ -27,8 +27,10 @@
 #include "MapQuickView.h"
 #include "Point.h"
 
+#include <QClipboard>
 #include <QDesktopServices>
 #include <QDir>
+#include <QGuiApplication>
 #include <QRegularExpression>
 #include <QStringBuilder>
 #include <QUrl>
@@ -125,6 +127,21 @@ void GEOINTMonitor::activateHeatmapRendering() const
 void GEOINTMonitor::activateSimpleRendering() const
 {
     m_gdeltLayer->setHeatmapRendering(false);
+}
+
+void GEOINTMonitor::addGeoJsonLayerFromClipboard() const
+{
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    QString clipboardText = clipboard->text();
+    QUrl geoJsonUrl(clipboardText);
+    m_geoJsonLayer->query(geoJsonUrl);
+}
+
+void GEOINTMonitor::clearGeoJson() const
+{
+    m_geoJsonLayer->pointsOverlay()->graphics()->clear();
+    m_geoJsonLayer->linesOverlay()->graphics()->clear();
+    m_geoJsonLayer->areasOverlay()->graphics()->clear();
 }
 
 void GEOINTMonitor::clearGdelt() const

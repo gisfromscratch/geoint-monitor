@@ -24,6 +24,8 @@
 #ifndef GRAPHICSFACTORY_H
 #define GRAPHICSFACTORY_H
 
+#include "Polygon.h"
+
 namespace Esri
 {
 namespace ArcGISRuntime
@@ -48,6 +50,8 @@ public:
 
 signals:
 
+private:
+    Esri::ArcGISRuntime::Polygon createPolygon(const QJsonArray& coordinatesArray);
 };
 
 #endif // GRAPHICSFACTORY_H

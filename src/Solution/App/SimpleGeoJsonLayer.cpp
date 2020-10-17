@@ -89,7 +89,59 @@ void SimpleGeoJsonLayer::networkRequestFinished(QNetworkReply *reply)
         return;
     }
 
+    // Encoding tests
     QByteArray jsonResponse = reply->readAll();
+    bool unknownEncoding = true;
+    if (reply->rawHeaderList().contains("Content-Type"))
+    {
+        QString contentType = reply->rawHeader("Content-Type");
+        QStringList contentTypeEntries = contentType.split(";");
+        foreach (const QString &contentTypeEntry, contentTypeEntries)
+        {
+            QString contentTypeEntryTrimmed = contentTypeEntry.trimmed();
+            if (contentTypeEntryTrimmed.startsWith("charset=", Qt::CaseInsensitive))
+            {
+                QStringList charsetEntries = contentTypeEntryTrimmed.split("=");
+                if (2 == charsetEntries.count())
+                {
+                    QString charset = charsetEntries.at(1).trimmed();
+                    qDebug() << "GeoJSON has " << charset << " encoding.";
+                    if (charset.startsWith("ISO-8859-", Qt::CaseInsensitive))
+                    {
+                        // Treat as Latin 1-16 and convert to UTF-8
+                        QString jsonAsLatin1 = QString::fromLatin1(jsonResponse);
+                        qDebug() << "Converting GeoJSON from Latin 1 to UTF-8";
+                        jsonResponse = jsonAsLatin1.toUtf8();
+                        unknownEncoding = false;
+                    }
+                    else if (charset.startsWith("utf-16", Qt::CaseInsensitive))
+                    {
+                        QString jsonAsUtf16 = jsonResponse;
+                        qDebug() << "Converting GeoJSON from UTF-16 to UTF-8";
+                        jsonResponse = jsonAsUtf16.toUtf8();
+                        unknownEncoding = false;
+                    }
+                    else if (charset.startsWith("utf-32", Qt::CaseInsensitive))
+                    {
+                        qDebug() << "UTF-32 is not supported!";
+                        //QString::fromUcs4(jsonResponse.data());
+                        //unknownEncoding = false;
+                    }
+                    else if (charset.startsWith("utf-8", Qt::CaseInsensitive))
+                    {
+                        unknownEncoding = false;
+                    }
+                }
+            }
+        }
+    }
+
+    if (unknownEncoding)
+    {
+        qDebug() << "GeoJSON has unknown encoding!";
+        return;
+    }
+
     QJsonDocument geoJsonDocument = QJsonDocument::fromJson(jsonResponse);
     if (geoJsonDocument.isNull())
     {

@@ -76,32 +76,25 @@ bool GraphicsFactory::createGraphics(const QJsonArray &featuresArray,
                     // TODO: MultiPoint, Polyline and so on implementations
                     else if (0 == QString::compare("Polygon", geometryType))
                     {
-                        PolygonBuilder polygonBuilder(SpatialReference::wgs84());
-                        foreach (const QJsonValue& ringValue, coordinatesArray)
-                        {
-                            if (ringValue.isArray())
-                            {
-                                QJsonArray ringsArray = ringValue.toArray();
-                                foreach (const QJsonValue& verticesValue, ringsArray)
-                                {
-                                    if (verticesValue.isArray())
-                                    {
-                                        QJsonArray verticesArray = verticesValue.toArray();
-                                        if (1 < verticesArray.count())
-                                        {
-                                            double x = verticesArray[0].toDouble();
-                                            double y = verticesArray[1].toDouble();
-                                            polygonBuilder.addPoint(x, y);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        Polygon polygon = polygonBuilder.toPolygon();
+                        Polygon polygon = createPolygon(coordinatesArray);
                         Graphic* geojsonGraphic = new Graphic(polygon, propertyMap, this);
                         areasOverlay->graphics()->append(geojsonGraphic);
                         added = true;
+                    }
+                    else if (0 == QString::compare("MultiPolygon", geometryType))
+                    {
+                        // Coordinates represents arrays of polygons
+                        foreach (const QJsonValue& polygonValue, coordinatesArray)
+                        {
+                            if (polygonValue.isArray())
+                            {
+                                QJsonArray polygonCoordinatesArray = polygonValue.toArray();
+                                Polygon polygon = createPolygon(polygonCoordinatesArray);
+                                Graphic* geojsonGraphic = new Graphic(polygon, propertyMap, this);
+                                areasOverlay->graphics()->append(geojsonGraphic);
+                                added = true;
+                            }
+                        }
                     }
                 }
             }
@@ -109,4 +102,45 @@ bool GraphicsFactory::createGraphics(const QJsonArray &featuresArray,
     }
 
     return added;
+}
+
+Polygon GraphicsFactory::createPolygon(const QJsonArray &coordinatesArray)
+{
+    PolygonBuilder polygonBuilder(SpatialReference::wgs84());
+    bool interiorRing = false;
+    foreach (const QJsonValue& ringValue, coordinatesArray)
+    {
+        if (ringValue.isArray())
+        {
+            QJsonArray ringsArray = ringValue.toArray();
+            foreach (const QJsonValue& verticesValue, ringsArray)
+            {
+                if (verticesValue.isArray())
+                {
+                    QJsonArray verticesArray = verticesValue.toArray();
+                    if (1 < verticesArray.count())
+                    {
+                        double x = verticesArray[0].toDouble();
+                        double y = verticesArray[1].toDouble();
+                        polygonBuilder.addPoint(x, y);
+                    }
+                }
+            }
+
+            if (!interiorRing)
+            {
+                // The first ring must be the exterior ring
+                interiorRing = true;
+
+                // TODO: Implement polygon holes
+                if (1 < coordinatesArray.count())
+                {
+                    qDebug() << (coordinatesArray.count() - 1) << " interior rings are thrown away!";
+                }
+                break;
+            }
+        }
+    }
+
+    return polygonBuilder.toPolygon();
 }

@@ -55,6 +55,8 @@ public:
 
     Q_INVOKABLE void activateHeatmapRendering() const;
     Q_INVOKABLE void activateSimpleRendering() const;
+    Q_INVOKABLE void addGeoJsonLayerFromClipboard() const;
+    Q_INVOKABLE void clearGeoJson() const;
     Q_INVOKABLE void clearGdelt() const;
     Q_INVOKABLE void clearNominatim() const;
     Q_INVOKABLE void clearWikimapia() const;

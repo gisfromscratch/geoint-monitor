@@ -86,6 +86,20 @@ ApplicationWindow {
                         monitorForm.clearGdelt();
                     }
                 }
+
+                ToolButton {
+                    text: qsTr("Add GeoJson")
+                    onClicked: {
+                        monitorForm.addGeoJsonLayerFromClipboard();
+                    }
+                }
+
+                ToolButton {
+                    text: qsTr("Clear")
+                    onClicked: {
+                        monitorForm.clearGeoJson();
+                    }
+                }
             }
 
             RowLayout {

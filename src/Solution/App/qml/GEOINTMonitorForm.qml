@@ -27,6 +27,10 @@ Item {
         model.activateHeatmapRendering();
     }
 
+    function addGeoJsonLayerFromClipboard() {
+        model.addGeoJsonLayerFromClipboard();
+    }
+
     function exportMapImage() {
         model.exportMapImage();
     }
@@ -37,6 +41,10 @@ Item {
 
     function queryGdelt(queryText, useExtent) {
         model.queryGdelt(queryText, useExtent);
+    }
+
+    function clearGeoJson() {
+        model.clearGeoJson();
     }
 
     function clearGdelt() {
