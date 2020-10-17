@@ -26,6 +26,9 @@
 #include "GraphicsFactory.h"
 
 #include "GraphicsOverlay.h"
+#include "SimpleFillSymbol.h"
+#include "SimpleMarkerSymbol.h"
+#include "SimpleRenderer.h"
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -36,15 +39,40 @@ using namespace Esri::ArcGISRuntime;
 SimpleGeoJsonLayer::SimpleGeoJsonLayer(QObject *parent) :
     QObject(parent),
     m_networkAccessManager(new QNetworkAccessManager(this)),
-    m_overlay(new GraphicsOverlay(this)),
+    m_pointsOverlay(new GraphicsOverlay(this)),
+    m_linesOverlay(new GraphicsOverlay(this)),
+    m_areasOverlay(new GraphicsOverlay(this)),
     m_graphicsFactor(new GraphicsFactory(this))
 {
     connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &SimpleGeoJsonLayer::networkRequestFinished);
+
+    SimpleRenderer* fillRenderer = new SimpleRenderer(this);
+    SimpleFillSymbol* fillSymbol = new SimpleFillSymbol(SimpleFillSymbolStyle::Solid, QColor("#d3c2a6"), this);
+    fillSymbol->setOutline(new SimpleLineSymbol(SimpleLineSymbolStyle::Solid, Qt::black, 4, this));
+    fillRenderer->setSymbol(fillSymbol);
+    m_areasOverlay->setRenderer(fillRenderer);
+    m_areasOverlay->setOpacity(0.35f);
+
+    SimpleRenderer* markerRenderer = new SimpleRenderer(this);
+    SimpleMarkerSymbol* markerSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, QColor("#d3c2a6"), 12, this);
+    markerSymbol->setOutline(new SimpleLineSymbol(SimpleLineSymbolStyle::Solid, Qt::black, 4, this));
+    markerRenderer->setSymbol(markerSymbol);
+    m_pointsOverlay->setRenderer(markerRenderer);
 }
 
-GraphicsOverlay* SimpleGeoJsonLayer::overlay() const
+GraphicsOverlay* SimpleGeoJsonLayer::pointsOverlay() const
 {
-    return m_overlay;
+    return m_pointsOverlay;
+}
+
+GraphicsOverlay* SimpleGeoJsonLayer::linesOverlay() const
+{
+    return m_linesOverlay;
+}
+
+GraphicsOverlay* SimpleGeoJsonLayer::areasOverlay() const
+{
+    return m_areasOverlay;
 }
 
 void SimpleGeoJsonLayer::query(const QUrl &geoJsonUrl)
@@ -76,7 +104,7 @@ void SimpleGeoJsonLayer::networkRequestFinished(QNetworkReply *reply)
 
     QJsonObject geoJsonObject = geoJsonDocument.object();
     QJsonArray geoJsonFeaturesArray = geoJsonObject["features"].toArray();
-    if (!m_graphicsFactor->createGraphics(geoJsonFeaturesArray, m_overlay))
+    if (!m_graphicsFactor->createGraphics(geoJsonFeaturesArray, m_pointsOverlay, m_linesOverlay, m_areasOverlay))
     {
         qDebug() << "No GeoJSON feature was added!";
     }

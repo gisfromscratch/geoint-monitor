@@ -77,8 +77,12 @@ void GEOINTMonitor::setMapView(MapQuickView* mapView)
     m_mapView->graphicsOverlays()->append(nominatimLabelOverlay);
 
     // Add the GeoJSON layer
-    GraphicsOverlay* geoJsonOverlay = m_geoJsonLayer->overlay();
-    m_mapView->graphicsOverlays()->append(geoJsonOverlay);
+    GraphicsOverlay* geoJsonPointsOverlay = m_geoJsonLayer->pointsOverlay();
+    m_mapView->graphicsOverlays()->append(geoJsonPointsOverlay);
+    GraphicsOverlay* geoJsonLinesOverlay = m_geoJsonLayer->linesOverlay();
+    m_mapView->graphicsOverlays()->append(geoJsonLinesOverlay);
+    GraphicsOverlay* geoJsonAreasOverlay = m_geoJsonLayer->areasOverlay();
+    m_mapView->graphicsOverlays()->append(geoJsonAreasOverlay);
 
     // Add the wikimapia query layer
     GraphicsOverlay* wikimapiaOverlay = m_wikimapiaPlaceLayer->overlay();

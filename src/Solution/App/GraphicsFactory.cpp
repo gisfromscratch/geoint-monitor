@@ -37,7 +37,10 @@ GraphicsFactory::GraphicsFactory(QObject *parent) : QObject(parent)
 
 }
 
-bool GraphicsFactory::createGraphics(const QJsonArray &featuresArray, Esri::ArcGISRuntime::GraphicsOverlay *overlay)
+bool GraphicsFactory::createGraphics(const QJsonArray &featuresArray,
+                                     Esri::ArcGISRuntime::GraphicsOverlay *pointsOverlay,
+                                     Esri::ArcGISRuntime::GraphicsOverlay *linesOverlay,
+                                     Esri::ArcGISRuntime::GraphicsOverlay *areasOverlay)
 {
     bool added = false;
     foreach (const QJsonValue& featureValue, featuresArray)
@@ -66,7 +69,7 @@ bool GraphicsFactory::createGraphics(const QJsonArray &featuresArray, Esri::ArcG
                             double y = coordinatesArray[1].toDouble();
                             Point location(x, y, SpatialReference::wgs84());
                             Graphic* graphic = new Graphic(location, propertyMap, this);
-                            overlay->graphics()->append(graphic);
+                            pointsOverlay->graphics()->append(graphic);
                             added = true;
                         }
                     }
@@ -97,7 +100,7 @@ bool GraphicsFactory::createGraphics(const QJsonArray &featuresArray, Esri::ArcG
 
                         Polygon polygon = polygonBuilder.toPolygon();
                         Graphic* geojsonGraphic = new Graphic(polygon, propertyMap, this);
-                        overlay->graphics()->append(geojsonGraphic);
+                        areasOverlay->graphics()->append(geojsonGraphic);
                         added = true;
                     }
                 }

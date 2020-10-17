@@ -49,7 +49,9 @@ class SimpleGeoJsonLayer : public QObject
 public:
     explicit SimpleGeoJsonLayer(QObject *parent = nullptr);
 
-    Esri::ArcGISRuntime::GraphicsOverlay* overlay() const;
+    Esri::ArcGISRuntime::GraphicsOverlay* pointsOverlay() const;
+    Esri::ArcGISRuntime::GraphicsOverlay* linesOverlay() const;
+    Esri::ArcGISRuntime::GraphicsOverlay* areasOverlay() const;
 
     void query(const QUrl& geoJsonUrl);
 
@@ -60,7 +62,9 @@ private slots:
 
 private:
     QNetworkAccessManager* m_networkAccessManager = nullptr;
-    Esri::ArcGISRuntime::GraphicsOverlay* m_overlay = nullptr;
+    Esri::ArcGISRuntime::GraphicsOverlay* m_pointsOverlay = nullptr;
+    Esri::ArcGISRuntime::GraphicsOverlay* m_linesOverlay = nullptr;
+    Esri::ArcGISRuntime::GraphicsOverlay* m_areasOverlay = nullptr;
     GraphicsFactory* m_graphicsFactor = nullptr;
 };
 

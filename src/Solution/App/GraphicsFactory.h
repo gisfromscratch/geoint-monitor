@@ -41,7 +41,10 @@ class GraphicsFactory : public QObject
 public:
     explicit GraphicsFactory(QObject *parent = nullptr);
 
-    bool createGraphics(const QJsonArray& featuresArray, Esri::ArcGISRuntime::GraphicsOverlay* overlay);
+    bool createGraphics(const QJsonArray& featuresArray,
+                        Esri::ArcGISRuntime::GraphicsOverlay* pointsOverlay,
+                        Esri::ArcGISRuntime::GraphicsOverlay* linesOverlay,
+                        Esri::ArcGISRuntime::GraphicsOverlay* areasOverlay);
 
 signals:
 
