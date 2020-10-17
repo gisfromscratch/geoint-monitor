@@ -27,6 +27,7 @@
 #include "Graphic.h"
 #include "GraphicsOverlay.h"
 #include "PolygonBuilder.h"
+#include "PolylineBuilder.h"
 
 #include <QJsonObject>
 
@@ -74,6 +75,28 @@ bool GraphicsFactory::createGraphics(const QJsonArray &featuresArray,
                         }
                     }
                     // TODO: MultiPoint, Polyline and so on implementations
+                    else if (0 == QString::compare("LineString", geometryType))
+                    {
+                        Polyline polyline = createPolyline(coordinatesArray);
+                        Graphic* geojsonGraphic = new Graphic(polyline, propertyMap, this);
+                        linesOverlay->graphics()->append(geojsonGraphic);
+                        added = true;
+                    }
+                    else if (0 == QString::compare("MultiLineString", geometryType))
+                    {
+                        // Coordinates represents arrays of polylines
+                        foreach (const QJsonValue& polylineValue, coordinatesArray)
+                        {
+                            if (polylineValue.isArray())
+                            {
+                                QJsonArray polylineCoordinatesArray = polylineValue.toArray();
+                                Polyline polyline = createPolyline(polylineCoordinatesArray);
+                                Graphic* geojsonGraphic = new Graphic(polyline, propertyMap, this);
+                                linesOverlay->graphics()->append(geojsonGraphic);
+                                added = true;
+                            }
+                        }
+                    }
                     else if (0 == QString::compare("Polygon", geometryType))
                     {
                         Polygon polygon = createPolygon(coordinatesArray);
@@ -143,4 +166,24 @@ Polygon GraphicsFactory::createPolygon(const QJsonArray &coordinatesArray)
     }
 
     return polygonBuilder.toPolygon();
+}
+
+Polyline GraphicsFactory::createPolyline(const QJsonArray &coordinatesArray)
+{
+    PolylineBuilder polylineBuilder(SpatialReference::wgs84());
+    foreach (const QJsonValue& verticesValue, coordinatesArray)
+    {
+        if (verticesValue.isArray())
+        {
+            QJsonArray verticesArray = verticesValue.toArray();
+            if (1 < verticesArray.count())
+            {
+                double x = verticesArray[0].toDouble();
+                double y = verticesArray[1].toDouble();
+                polylineBuilder.addPoint(x, y);
+            }
+        }
+    }
+
+    return polylineBuilder.toPolyline();
 }

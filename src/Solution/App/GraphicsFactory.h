@@ -25,6 +25,7 @@
 #define GRAPHICSFACTORY_H
 
 #include "Polygon.h"
+#include "Polyline.h"
 
 namespace Esri
 {
@@ -52,6 +53,7 @@ signals:
 
 private:
     Esri::ArcGISRuntime::Polygon createPolygon(const QJsonArray& coordinatesArray);
+    Esri::ArcGISRuntime::Polyline createPolyline(const QJsonArray& coordinatesArray);
 };
 
 #endif // GRAPHICSFACTORY_H
