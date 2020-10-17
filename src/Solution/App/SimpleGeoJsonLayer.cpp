@@ -53,6 +53,12 @@ SimpleGeoJsonLayer::SimpleGeoJsonLayer(QObject *parent) :
     m_areasOverlay->setRenderer(fillRenderer);
     m_areasOverlay->setOpacity(0.35f);
 
+    SimpleRenderer* lineRenderer = new SimpleRenderer(this);
+    SimpleLineSymbol* lineSymbol = new SimpleLineSymbol(SimpleLineSymbolStyle::Solid, Qt::black, 5, this);
+    lineRenderer->setSymbol(lineSymbol);
+    m_linesOverlay->setRenderer(lineRenderer);
+    m_linesOverlay->setOpacity(0.35f);
+
     SimpleRenderer* markerRenderer = new SimpleRenderer(this);
     SimpleMarkerSymbol* markerSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle::Circle, QColor("#d3c2a6"), 12, this);
     markerSymbol->setOutline(new SimpleLineSymbol(SimpleLineSymbolStyle::Solid, Qt::black, 4, this));
