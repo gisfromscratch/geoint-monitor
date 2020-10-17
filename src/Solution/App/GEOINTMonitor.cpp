@@ -13,6 +13,12 @@
 
 #include "GEOINTMonitor.h"
 
+#include "GdeltCalloutData.h"
+#include "GdeltEventLayer.h"
+#include "NominatimPlaceLayer.h"
+#include "SimpleGeoJsonLayer.h"
+#include "WikimapiaPlaceLayer.h"
+
 #include "Basemap.h"
 #include "GeometryEngine.h"
 #include "Graphic.h"
@@ -20,11 +26,6 @@
 #include "Map.h"
 #include "MapQuickView.h"
 #include "Point.h"
-
-#include "GdeltCalloutData.h"
-#include "GdeltEventLayer.h"
-#include "NominatimPlaceLayer.h"
-#include "WikimapiaPlaceLayer.h"
 
 #include <QDesktopServices>
 #include <QDir>
@@ -39,6 +40,7 @@ GEOINTMonitor::GEOINTMonitor(QObject* parent /* = nullptr */):
     m_map(new Map(Basemap::openStreetMap(this), this)),
     m_gdeltLayer(new GdeltEventLayer(this)),
     m_nominatimPlaceLayer(new NominatimPlaceLayer(this)),
+    m_geoJsonLayer(new SimpleGeoJsonLayer(this)),
     m_wikimapiaPlaceLayer(new WikimapiaPlaceLayer(this))
 {
 }
@@ -73,6 +75,10 @@ void GEOINTMonitor::setMapView(MapQuickView* mapView)
     m_mapView->graphicsOverlays()->append(nominatimOverlay);
     GraphicsOverlay* nominatimLabelOverlay = m_nominatimPlaceLayer->pointOverlay();
     m_mapView->graphicsOverlays()->append(nominatimLabelOverlay);
+
+    // Add the GeoJSON layer
+    GraphicsOverlay* geoJsonOverlay = m_geoJsonLayer->overlay();
+    m_mapView->graphicsOverlays()->append(geoJsonOverlay);
 
     // Add the wikimapia query layer
     GraphicsOverlay* wikimapiaOverlay = m_wikimapiaPlaceLayer->overlay();

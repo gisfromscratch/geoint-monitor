@@ -59,21 +59,18 @@ bool GraphicsFactory::createGraphics(const QJsonArray &featuresArray, Esri::ArcG
                     QString geometryType = geometryTypeValue.toString();
                     if (0 == QString::compare("Point", geometryType))
                     {
-
-                        if (coordinatesValue.isArray())
+                        QJsonArray coordinatesArray = coordinatesValue.toArray();
+                        if (1 < coordinatesArray.count())
                         {
-                            QJsonArray coordinatesArray = coordinatesValue.toArray();
-                            if (1 < coordinatesArray.count())
-                            {
-                                double x = coordinatesArray[0].toDouble();
-                                double y = coordinatesArray[1].toDouble();
-                                Point location(x, y, SpatialReference::wgs84());
-                                Graphic* graphic = new Graphic(location, propertyMap, this);
-                                overlay->graphics()->append(graphic);
-                                added = true;
-                            }
+                            double x = coordinatesArray[0].toDouble();
+                            double y = coordinatesArray[1].toDouble();
+                            Point location(x, y, SpatialReference::wgs84());
+                            Graphic* graphic = new Graphic(location, propertyMap, this);
+                            overlay->graphics()->append(graphic);
+                            added = true;
                         }
                     }
+                    // TODO: MultiPoint, Polyline and so on implementations
                     else if (0 == QString::compare("Polygon", geometryType))
                     {
                         PolygonBuilder polygonBuilder(SpatialReference::wgs84());
@@ -101,6 +98,7 @@ bool GraphicsFactory::createGraphics(const QJsonArray &featuresArray, Esri::ArcG
                         Polygon polygon = polygonBuilder.toPolygon();
                         Graphic* geojsonGraphic = new Graphic(polygon, propertyMap, this);
                         overlay->graphics()->append(geojsonGraphic);
+                        added = true;
                     }
                 }
             }

@@ -16,6 +16,12 @@
 
 #include "Envelope.h"
 
+class GdeltCalloutData;
+class GdeltEventLayer;
+class NominatimPlaceLayer;
+class SimpleGeoJsonLayer;
+class WikimapiaPlaceLayer;
+
 namespace Esri
 {
 namespace ArcGISRuntime
@@ -26,11 +32,6 @@ class Map;
 class MapQuickView;
 }
 }
-
-class GdeltCalloutData;
-class GdeltEventLayer;
-class NominatimPlaceLayer;
-class WikimapiaPlaceLayer;
 
 #include <QImage>
 #include <QObject>
@@ -97,6 +98,7 @@ private:
     QVariantList m_lastCalloutData;
     GdeltEventLayer* m_gdeltLayer = nullptr;
     NominatimPlaceLayer* m_nominatimPlaceLayer = nullptr;
+    SimpleGeoJsonLayer* m_geoJsonLayer = nullptr;
     WikimapiaPlaceLayer* m_wikimapiaPlaceLayer = nullptr;
     bool m_queryWikimapiaEnabled = false;
     Esri::ArcGISRuntime::Envelope m_lastQueriedBoundingBox;

@@ -5,6 +5,7 @@ HEADERS += \
     $$PWD/GEOINTMonitor.h \
     $$PWD/GraphicsFactory.h \
     $$PWD/NominatimPlaceLayer.h \
+    $$PWD/SimpleGeoJsonLayer.h \
     $$PWD/WikimapiaPlaceLayer.h
 
 SOURCES += \
@@ -12,6 +13,7 @@ SOURCES += \
     $$PWD/GdeltEventLayer.cpp \
     $$PWD/GraphicsFactory.cpp \
     $$PWD/NominatimPlaceLayer.cpp \
+    $$PWD/SimpleGeoJsonLayer.cpp \
     $$PWD/WikimapiaPlaceLayer.cpp \
     $$PWD/main.cpp \
     $$PWD/GEOINTMonitor.cpp
