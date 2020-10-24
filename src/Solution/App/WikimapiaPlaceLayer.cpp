@@ -123,7 +123,7 @@ void WikimapiaPlaceLayer::query()
             + "&categories_or="
             + categoriesString
             + "&categories_and=";
-    qDebug() << wikimapiaQueryString;
+    //qDebug() << wikimapiaQueryString;
     QUrl wikimapiaQueryUrl(wikimapiaQueryString);
 
     QNetworkRequest wikiMapiaRequest;
