@@ -139,26 +139,50 @@ void GEOINTMonitor::addGeoJsonLayerFromClipboard() const
 
 void GEOINTMonitor::clearGeoJson() const
 {
-    m_geoJsonLayer->pointsOverlay()->graphics()->clear();
-    m_geoJsonLayer->linesOverlay()->graphics()->clear();
-    m_geoJsonLayer->areasOverlay()->graphics()->clear();
+    if (!removeSelectedGraphics(m_geoJsonLayer->pointsOverlay()))
+    {
+        m_geoJsonLayer->pointsOverlay()->graphics()->clear();
+    }
+    if (!removeSelectedGraphics(m_geoJsonLayer->linesOverlay()))
+    {
+        m_geoJsonLayer->linesOverlay()->graphics()->clear();
+    }
+    if (!removeSelectedGraphics(m_geoJsonLayer->areasOverlay()))
+    {
+        m_geoJsonLayer->areasOverlay()->graphics()->clear();
+    }
 }
 
 void GEOINTMonitor::clearGdelt() const
 {
-    m_gdeltLayer->overlay()->graphics()->clear();
+    if (!removeSelectedGraphics(m_gdeltLayer->overlay()))
+    {
+        m_gdeltLayer->overlay()->graphics()->clear();
+    }
 }
 
 void GEOINTMonitor::clearNominatim() const
 {
-    m_nominatimPlaceLayer->overlay()->graphics()->clear();
-    m_nominatimPlaceLayer->pointOverlay()->graphics()->clear();
+    if (!removeSelectedGraphics(m_nominatimPlaceLayer->overlay()))
+    {
+        m_nominatimPlaceLayer->overlay()->graphics()->clear();
+    }
+    if (!removeSelectedGraphics(m_nominatimPlaceLayer->pointOverlay()))
+    {
+        m_nominatimPlaceLayer->pointOverlay()->graphics()->clear();
+    }
 }
 
 void GEOINTMonitor::clearWikimapia() const
 {
-    m_wikimapiaPlaceLayer->overlay()->graphics()->clear();
-    m_wikimapiaPlaceLayer->labelOverlay()->graphics()->clear();
+    if (!removeSelectedGraphics(m_wikimapiaPlaceLayer->overlay()))
+    {
+        m_wikimapiaPlaceLayer->overlay()->graphics()->clear();
+    }
+    if (!removeSelectedGraphics(m_wikimapiaPlaceLayer->labelOverlay()))
+    {
+        m_wikimapiaPlaceLayer->labelOverlay()->graphics()->clear();
+    }
 }
 
 void GEOINTMonitor::exportMapImage() const
@@ -177,7 +201,7 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
     if (!identifyResult->error().isEmpty())
     {
         return;
-    }
+    }   
 
     if (m_wikimapiaPlaceLayer->overlay() == identifyResult->graphicsOverlay())
     {
@@ -192,75 +216,83 @@ void GEOINTMonitor::identifyGraphicsOverlayCompleted(QUuid taskId, Esri::ArcGISR
         return;
     }
 
-    QRegularExpression titlePattern("title=\"(?<title>[^\"]+)\"");
-    QRegularExpression hrefPattern("href=\"(?<href>[^\"]+)\"");
-    QList<Graphic*> identifiedGraphics = identifyResult->graphics();
-    foreach (Graphic* graphic, identifiedGraphics)
+    if (m_gdeltLayer->overlay() == identifyResult->graphicsOverlay())
     {
-        m_mapView->calloutData()->setTitle("GDELT Graphic");
-
-        //TODO: Liftetime is bound to the underlying graphic, could be serious!
-        GdeltCalloutData* calloutData = new GdeltCalloutData(graphic);
-
-        AttributeListModel* gdeltAttributesModel = graphic->attributes();
-        QStringList gdeltAttributeNames = gdeltAttributesModel->attributeNames();
-        foreach (const QString& gdeltAttributeName, gdeltAttributeNames)
+        QRegularExpression titlePattern("title=\"(?<title>[^\"]+)\"");
+        QRegularExpression hrefPattern("href=\"(?<href>[^\"]+)\"");
+        QList<Graphic*> identifiedGraphics = identifyResult->graphics();
+        foreach (Graphic* graphic, identifiedGraphics)
         {
-            QVariant gdeltAttributeValue = gdeltAttributesModel->attributeValue(gdeltAttributeName);
-            QString gdeltAttributeValueAsString = gdeltAttributeValue.toString();
-            if (0 == gdeltAttributeName.compare("name"))
-            {
-                m_mapView->calloutData()->setTitle(gdeltAttributeValueAsString);
-                calloutData->setTitle(gdeltAttributeValueAsString);
-            }
-            else if (0 == gdeltAttributeName.compare("html"))
-            {
-                QRegularExpressionMatch titleMatch = titlePattern.match(gdeltAttributeValueAsString);
-                if (titleMatch.hasMatch())
-                {
-                    QString title = titleMatch.captured("title");
-                    m_mapView->calloutData()->setDetail(title);
-                    calloutData->setDetail(title);
-                }
-                else
-                {
-                    m_mapView->calloutData()->setDetail(gdeltAttributeValueAsString);
-                    calloutData->setDetail(gdeltAttributeValueAsString);
-                }
+            m_mapView->calloutData()->setTitle("GDELT Graphic");
 
-                QRegularExpressionMatch hrefMatch = hrefPattern.match(gdeltAttributeValueAsString);
-                if (hrefMatch.hasMatch())
+            //TODO: Liftetime is bound to the underlying graphic, could be serious!
+            GdeltCalloutData* calloutData = new GdeltCalloutData(graphic);
+
+            AttributeListModel* gdeltAttributesModel = graphic->attributes();
+            QStringList gdeltAttributeNames = gdeltAttributesModel->attributeNames();
+            foreach (const QString& gdeltAttributeName, gdeltAttributeNames)
+            {
+                QVariant gdeltAttributeValue = gdeltAttributesModel->attributeValue(gdeltAttributeName);
+                QString gdeltAttributeValueAsString = gdeltAttributeValue.toString();
+                if (0 == gdeltAttributeName.compare("name"))
                 {
-                    // Set the news url
-                    QString href = hrefMatch.captured("href");
-                    calloutData->setLink(href);
+                    m_mapView->calloutData()->setTitle(gdeltAttributeValueAsString);
+                    calloutData->setTitle(gdeltAttributeValueAsString);
+                }
+                else if (0 == gdeltAttributeName.compare("html"))
+                {
+                    QRegularExpressionMatch titleMatch = titlePattern.match(gdeltAttributeValueAsString);
+                    if (titleMatch.hasMatch())
+                    {
+                        QString title = titleMatch.captured("title");
+                        m_mapView->calloutData()->setDetail(title);
+                        calloutData->setDetail(title);
+                    }
+                    else
+                    {
+                        m_mapView->calloutData()->setDetail(gdeltAttributeValueAsString);
+                        calloutData->setDetail(gdeltAttributeValueAsString);
+                    }
+
+                    QRegularExpressionMatch hrefMatch = hrefPattern.match(gdeltAttributeValueAsString);
+                    if (hrefMatch.hasMatch())
+                    {
+                        // Set the news url
+                        QString href = hrefMatch.captured("href");
+                        calloutData->setLink(href);
+                    }
+                }
+                else if (0 == gdeltAttributeName.compare("shareimage"))
+                {
+                    m_mapView->calloutData()->setImageUrl(QUrl(gdeltAttributeValueAsString));
+                }
+                else if (0 == gdeltAttributeName.compare("uid"))
+                {
+                    calloutData->setUniqueId(gdeltAttributeValueAsString);
                 }
             }
-            else if (0 == gdeltAttributeName.compare("shareimage"))
-            {
-                m_mapView->calloutData()->setImageUrl(QUrl(gdeltAttributeValueAsString));
-            }
-            else if (0 == gdeltAttributeName.compare("uid"))
-            {
-                calloutData->setUniqueId(gdeltAttributeValueAsString);
-            }
+
+            // Select the graphic and add the callout data
+            graphic->setSelected(true);
+            m_lastCalloutData.append(QVariant::fromValue(calloutData));
+
+            // TODO: Ugly UI do not show
+            //m_mapView->calloutData()->setVisible(true);
         }
 
-        // Select the graphic and add the callout data
-        graphic->setSelected(true);
-        m_lastCalloutData.append(QVariant::fromValue(calloutData));
+        if (!identifiedGraphics.empty())
+        {
+            // Only when there is at least one identified graphics
+            emit calloutDataChanged();
+        }
 
-        // TODO: Ugly UI do not show
-        //m_mapView->calloutData()->setVisible(true);
+        // Only for the popup listeners
+        emit identifyCompleted();
+        return;
     }
 
-    if (!identifiedGraphics.empty())
-    {
-        // Only when there is at least one identified graphics
-        emit calloutDataChanged();
-    }
-
-    emit identifyCompleted();
+    // Just select the identified graphics
+    identifyResult->graphicsOverlay()->selectGraphics(identifyResult->graphics());
 }
 
 void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
@@ -288,9 +320,21 @@ void GEOINTMonitor::mouseClicked(QMouseEvent& mouseEvent)
     const double pixelTolerance = 3;
     const int maxResults = 50;
     bool onlyPopups = false;
+
     GraphicsOverlay* gdeltOverlay = m_gdeltLayer->overlay();
     gdeltOverlay->clearSelection();
     m_mapView->identifyGraphicsOverlay(gdeltOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups, maxResults);
+
+    GraphicsOverlay* geoJsonPointsOverlay = m_geoJsonLayer->pointsOverlay();
+    geoJsonPointsOverlay->clearSelection();
+    m_mapView->identifyGraphicsOverlay(geoJsonPointsOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups, maxResults);
+    GraphicsOverlay* geoJsonLinesOverlay = m_geoJsonLayer->linesOverlay();
+    geoJsonLinesOverlay->clearSelection();
+    m_mapView->identifyGraphicsOverlay(geoJsonLinesOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups, maxResults);
+    GraphicsOverlay* geoJsonAreasOverlay = m_geoJsonLayer->areasOverlay();
+    geoJsonAreasOverlay->clearSelection();
+    m_mapView->identifyGraphicsOverlay(geoJsonAreasOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups, maxResults);
+
     GraphicsOverlay* wikimapiaOverlay = m_wikimapiaPlaceLayer->overlay();
     wikimapiaOverlay->clearSelection();
     m_mapView->identifyGraphicsOverlay(wikimapiaOverlay, mouseEvent.x(), mouseEvent.y(), pixelTolerance, onlyPopups, maxResults);
@@ -428,6 +472,22 @@ void GEOINTMonitor::selectGraphic(const QString &graphicUid) const
     default:
         return;
     }
+}
+
+bool GEOINTMonitor::removeSelectedGraphics(GraphicsOverlay* overlay) const
+{
+    bool removedGraphic = false;
+    QList<Graphic*> selectedGraphics = overlay->selectedGraphics();
+    if (0 < selectedGraphics.count())
+    {
+        foreach(Graphic* selectedGraphic, selectedGraphics)
+        {
+            overlay->graphics()->removeOne(selectedGraphic);
+            removedGraphic = true;
+        }
+    }
+
+    return removedGraphic;
 }
 
 void GEOINTMonitor::navigatingChanged()

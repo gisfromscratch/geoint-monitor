@@ -28,6 +28,7 @@ namespace ArcGISRuntime
 {
 class CalloutData;
 class IdentifyGraphicsOverlayResult;
+class GraphicsOverlay;
 class Map;
 class MapQuickView;
 }
@@ -82,7 +83,7 @@ private slots:
     void navigatingChanged();
     void viewpointChanged();
 
-private:    
+private:
     Esri::ArcGISRuntime::MapQuickView* mapView() const;
     void setMapView(Esri::ArcGISRuntime::MapQuickView* mapView);
 
@@ -91,6 +92,8 @@ private:
     QVariantList lastCalloutData() const;
 
     bool queryWikimapiaEnabled() const;
+
+    bool removeSelectedGraphics(Esri::ArcGISRuntime::GraphicsOverlay* overlay) const;
 
     Esri::ArcGISRuntime::Map* m_map = nullptr;
     Esri::ArcGISRuntime::MapQuickView* m_mapView = nullptr;
