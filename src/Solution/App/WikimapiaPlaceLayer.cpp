@@ -96,12 +96,34 @@ void WikimapiaPlaceLayer::query()
             + "&lon_max=" + QString::number(m_spatialFilter.xMax())
             + "&lat_max=" + QString::number(m_spatialFilter.yMax());
 
+    // See https://gist.github.com/effrenus/6989940#file-wikimapia-category-list
+    // 286,"administrative"
+    // 48368,"administrative division"
+    // 44605,"interesting place"
+    // 44634,"first-level administrative division"
+    // 44639,"second-level administrative division"
+    // 44786,"third-level administrative division"
+    // 44768,"fourth-level administrative division"
+    // 45620,"fifth-level administrative division"
+    // 1200,"district"
+    // 1339,"community"
+    // 7227,"municipality"
+    // 53115,"city district"
+    // 949,"village"
+    // 88,"city"
+    QString categoryString = "";
+    QString categoriesString = "88,7227";
+
     QString wikimapiaQueryString = "http://api.wikimapia.org/?key="
             + m_wikimapiaLicenseKey
             + "&function=box&coordsby=latlon&"
             + bboxString
-            + "&format=json&language=en&page=1&count=50&category=&categories_or=&categories_and=";
-    //qDebug() << wikimapiaQueryString;
+            + "&format=json&language=en&page=1&count=50&category="
+            + categoryString
+            + "&categories_or="
+            + categoriesString
+            + "&categories_and=";
+    qDebug() << wikimapiaQueryString;
     QUrl wikimapiaQueryUrl(wikimapiaQueryString);
 
     QNetworkRequest wikiMapiaRequest;
