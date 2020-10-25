@@ -46,15 +46,12 @@ Shell::Shell(QWidget* parent /*=nullptr*/):
     setCentralWidget(m_mapView);
 
     // Add the graphics overlay
+    m_gdeltEventLayer->setHeatmapRendering(true);
     GraphicsOverlay* gdeltOverlay = m_gdeltEventLayer->overlay();
     m_mapView->graphicsOverlays()->append(gdeltOverlay);
 
     // Query the events
-    m_gdeltEventLayer->setQueryFilter("climate change");
-    m_gdeltEventLayer->query();
-
-    // Export map image
-    QTimer::singleShot(3000, this, &Shell::exportMapImage);
+    QTimer::singleShot(3000, this, &Shell::queryGdelt);
 }
 
 // destructor
@@ -81,4 +78,14 @@ void Shell::exportMapImageCompleted(QUuid taskId, QImage image)
         // Emit map image exported
         qDebug() << absoluteFileName;
     }
+}
+
+void Shell::queryGdelt()
+{
+    QString queryFiter = "theme:GENERAL_HEALTH";
+    m_gdeltEventLayer->setQueryFilter(queryFiter);
+    m_gdeltEventLayer->query();
+
+    // Export map image
+    QTimer::singleShot(5000, this, &Shell::exportMapImage);
 }

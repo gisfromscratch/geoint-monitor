@@ -40,6 +40,7 @@ public:
 private slots:
     void exportMapImage();
     void exportMapImageCompleted(QUuid taskId, QImage image);
+    void queryGdelt();
 
 private:
     Esri::ArcGISRuntime::Map* m_map = nullptr;
