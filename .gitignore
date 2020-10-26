@@ -16,7 +16,18 @@
 # Mono auto generated files
 mono_crash.*
 
+# Qt
+.qmake.stash
+Makefile
+Makefile.*
+
+# Java
+.gradle/
+.settings/
+.project
+
 # Build results
+build-*/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
