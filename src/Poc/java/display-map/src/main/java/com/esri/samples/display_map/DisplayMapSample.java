@@ -22,8 +22,9 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import com.esri.arcgisruntime.mapping.ArcGISMap;
-import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.view.MapView;
+import com.esri.arcgisruntime.portal.Portal;
+import com.esri.arcgisruntime.portal.PortalItem;
 
 public class DisplayMapSample extends Application {
 
@@ -44,8 +45,12 @@ public class DisplayMapSample extends Application {
       stage.setScene(scene);
       stage.show();
 
-      // create a map with the imagery basemap
-      ArcGISMap map = new ArcGISMap(Basemap.createImagery());
+      // create a map using a portal item
+      String portalUrl = "https://www.arcgis.com";
+      Portal onlinePortal = new Portal(portalUrl);
+      String portalItemId = "27b0fc32b7954654bf9b7903ae782771";
+      PortalItem portalItem = new PortalItem(onlinePortal, portalItemId);
+      ArcGISMap map = new ArcGISMap(portalItem);
 
       // create a map view and set its map
       mapView = new MapView();
