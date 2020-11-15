@@ -33,7 +33,8 @@ namespace DisplayMap
             foreach (var layer in operationalLayers)
             {
                 var featureLayer = layer as FeatureLayer;
-                if (0 == string.Compare("Incidents of Conflict and Protest", featureLayer.Name))
+                if (null != featureLayer
+                    && 0 == string.Compare("Incidents of Conflict and Protest", featureLayer.Name))
                 {
                     // Query the ACLED incidents
                     var queryParams = new QueryParameters();
