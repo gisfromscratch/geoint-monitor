@@ -14,6 +14,7 @@ using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.Tasks;
 using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.Portal;
+using System.Diagnostics;
 
 namespace DisplayMap
 {
@@ -33,6 +34,34 @@ namespace DisplayMap
             var itemId = @"27b0fc32b7954654bf9b7903ae782771";
             var portalItem = await PortalItem.CreateAsync(onlinePortal, itemId);
             Map = new Map(portalItem);
+            Map.Loaded += MapLoaded;
+        }
+
+        private async void MapLoaded(object sender, EventArgs e)
+        {
+            var operationalLayers = Map.OperationalLayers;
+            foreach (var layer in operationalLayers)
+            {
+                var featureLayer = layer as FeatureLayer;
+                if (0 == string.Compare("Incidents of Conflict and Protest", featureLayer.Name))
+                {
+                    // Query the ACLED incidents
+                    var queryParams = new QueryParameters();
+                    queryParams.WhereClause = @"1=1";
+
+                    var featureTable = featureLayer.FeatureTable;
+                    var queryResult = await featureTable.QueryFeaturesAsync(queryParams);
+                    var featureCount = 0;
+                    foreach (var feature in queryResult)
+                    {
+                        if (!feature.Geometry.IsEmpty)
+                        {
+                            featureCount++;
+                        }
+                    }
+                    Debug.WriteLine(featureCount);
+                }
+            }
         }
 
         private Map _map;
