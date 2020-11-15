@@ -21,7 +21,18 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.util.Iterator;
+import java.util.List;
+
+import com.esri.arcgisruntime.concurrent.ListenableFuture;
+import com.esri.arcgisruntime.data.Feature;
+import com.esri.arcgisruntime.data.FeatureQueryResult;
+import com.esri.arcgisruntime.data.FeatureTable;
+import com.esri.arcgisruntime.data.QueryParameters;
+import com.esri.arcgisruntime.layers.FeatureLayer;
+import com.esri.arcgisruntime.layers.Layer;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
+import com.esri.arcgisruntime.mapping.LayerList;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import com.esri.arcgisruntime.portal.Portal;
 import com.esri.arcgisruntime.portal.PortalItem;
@@ -51,6 +62,39 @@ public class DisplayMapSample extends Application {
       String portalItemId = "27b0fc32b7954654bf9b7903ae782771";
       PortalItem portalItem = new PortalItem(onlinePortal, portalItemId);
       ArcGISMap map = new ArcGISMap(portalItem);
+      map.addDoneLoadingListener(() -> {
+        LayerList operationalLayers = map.getOperationalLayers();
+        Iterator<Layer> layerIterator = operationalLayers.iterator();
+        while (layerIterator.hasNext()) {
+          Layer layer = layerIterator.next();
+          if (layer instanceof FeatureLayer) {
+            FeatureLayer featureLayer = (FeatureLayer)layer;
+            if (0 == "Incidents of Conflict and Protest".compareTo(featureLayer.getName())) {
+              // Query the ACLED incidents
+              QueryParameters queryParams = new QueryParameters();
+              queryParams.setWhereClause("1=1");
+              
+              FeatureTable featureTable = featureLayer.getFeatureTable();
+              ListenableFuture<FeatureQueryResult> queryFuture = featureTable.queryFeaturesAsync(queryParams);
+              queryFuture.addDoneListener(() -> {
+                try {
+                  FeatureQueryResult queryResult = queryFuture.get();
+                  int featureCount = 0;
+                  for (Iterator<Feature> featureIterator = queryResult.iterator(); featureIterator.hasNext();) {
+                    Feature feature = featureIterator.next();
+                    if (!feature.getGeometry().isEmpty()) {
+                      featureCount++;
+                    }
+                  }
+                  System.out.println(featureCount);
+                } catch (Exception ex) {
+                  ex.printStackTrace();
+                }
+              });
+            }
+          }
+        }
+      });
 
       // create a map view and set its map
       mapView = new MapView();
