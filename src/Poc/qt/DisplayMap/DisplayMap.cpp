@@ -14,6 +14,7 @@
 #include "DisplayMap.h"
 
 #include "Basemap.h"
+#include "FeatureLayer.h"
 #include "Map.h"
 #include "MapQuickView.h"
 #include "Portal.h"
@@ -30,6 +31,46 @@ DisplayMap::DisplayMap(QObject* parent /* = nullptr */):
     auto onlinePortal = new Portal(this);
     auto portalItem = new PortalItem(onlinePortal, "27b0fc32b7954654bf9b7903ae782771");
     m_map = new Map(portalItem, this);
+    connect(m_map, &Map::doneLoading, this, [this](const Error& err)
+    {
+        Q_UNUSED(err);
+
+        auto operationalLayers = m_map->operationalLayers();
+        for (Layer* layer : *(operationalLayers))
+        {
+            auto featureLayer = dynamic_cast<FeatureLayer*>(layer);
+            if (nullptr != featureLayer
+                && 0 == QStringLiteral("Incidents of Conflict and Protest").compare(featureLayer->name()))
+            {
+                auto featureTable = featureLayer->featureTable();
+                connect(featureTable, &FeatureTable::queryFeaturesCompleted, this, [] (QUuid taskId, FeatureQueryResult* featureQueryResult)
+                {
+                    Q_UNUSED(taskId);
+
+                    if (nullptr == featureQueryResult)
+                    {
+                        return;
+                    }
+
+                    auto queryResult = std::unique_ptr<FeatureQueryResult>(featureQueryResult);
+                    auto featureCount = 0;
+                    for (auto featureIterator = queryResult->iterator(); featureIterator.hasNext();)
+                    {
+                        auto feature = featureIterator.next();
+                        if (!feature->geometry().isEmpty())
+                        {
+                            featureCount++;
+                        }
+                    }
+                    qDebug() << featureCount;
+                });
+
+                QueryParameters queryParams;
+                queryParams.setWhereClause("1=1");
+                featureTable->queryFeatures(queryParams);
+            }
+        }
+    });
 }
 
 DisplayMap::~DisplayMap()
