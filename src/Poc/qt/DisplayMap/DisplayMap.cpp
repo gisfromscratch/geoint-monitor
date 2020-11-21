@@ -15,6 +15,7 @@
 
 #include "Basemap.h"
 #include "FeatureLayer.h"
+#include "GeometryEngine.h"
 #include "Map.h"
 #include "MapQuickView.h"
 #include "Portal.h"
@@ -42,32 +43,9 @@ DisplayMap::DisplayMap(QObject* parent /* = nullptr */):
             if (nullptr != featureLayer
                 && 0 == QStringLiteral("Incidents of Conflict and Protest").compare(featureLayer->name()))
             {
-                auto featureTable = featureLayer->featureTable();
-                connect(featureTable, &FeatureTable::queryFeaturesCompleted, this, [] (QUuid taskId, FeatureQueryResult* featureQueryResult)
-                {
-                    Q_UNUSED(taskId);
-
-                    if (nullptr == featureQueryResult)
-                    {
-                        return;
-                    }
-
-                    auto queryResult = std::unique_ptr<FeatureQueryResult>(featureQueryResult);
-                    auto featureCount = 0;
-                    for (auto featureIterator = queryResult->iterator(); featureIterator.hasNext();)
-                    {
-                        auto feature = featureIterator.next();
-                        if (!feature->geometry().isEmpty())
-                        {
-                            featureCount++;
-                        }
-                    }
-                    qDebug() << featureCount;
-                });
-
-                QueryParameters queryParams;
-                queryParams.setWhereClause("1=1");
-                featureTable->queryFeatures(queryParams);
+                m_featureTable = featureLayer->featureTable();
+                connect(m_featureTable, &FeatureTable::queryFeaturesCompleted, this, &DisplayMap::queryFeaturesCompleted);
+                break;
             }
         }
     });
@@ -93,5 +71,69 @@ void DisplayMap::setMapView(MapQuickView* mapView)
     m_mapView = mapView;
     m_mapView->setMap(m_map);
 
+    connect(m_mapView, &MapQuickView::mouseClicked, this, [this](const QMouseEvent& evt)
+    {
+        Q_UNUSED(evt);
+
+        queryFeatures();
+    });
     emit mapViewChanged();
+}
+
+void DisplayMap::queryFeatures()
+{
+    if (nullptr == m_featureTable)
+    {
+        return;
+    }
+
+    QueryParameters queryParams;
+    queryParams.setWhereClause("1=1");
+    m_featureTable->queryFeatures(queryParams);
+}
+
+void DisplayMap::queryFeaturesCompleted(QUuid taskId, FeatureQueryResult* featureQueryResult)
+{
+    Q_UNUSED(taskId);
+
+    if (nullptr == featureQueryResult)
+    {
+        return;
+    }
+
+    auto queryResult = std::unique_ptr<FeatureQueryResult>(featureQueryResult);
+    auto featureCount = 0;
+    for (auto featureIterator = queryResult->iterator(); featureIterator.hasNext();)
+    {
+        auto feature = featureIterator.next(this);
+        if (!feature->geometry().isEmpty())
+        {
+            featureCount++;
+        }
+
+        QVariant objectIdAsVariant = feature->attributes()->attributeValue("OBJECTID");
+        auto objectId = objectIdAsVariant.toLongLong();
+        if (m_features.contains(objectId))
+        {
+            auto oldFeature = m_features[objectId];
+            if (!GeometryEngine::equals(oldFeature->geometry(), feature->geometry()))
+            {
+                m_features[objectId] = feature;
+
+                // Delete the feature
+                delete oldFeature;
+            }
+            else
+            {
+                // Delete the feature
+                delete feature;
+            }
+        }
+        else
+        {
+            m_features.insert(objectId, feature);
+        }
+    }
+    qDebug() << featureCount;
+    qDebug() << m_features.count();
 }

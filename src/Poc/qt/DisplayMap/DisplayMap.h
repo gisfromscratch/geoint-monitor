@@ -20,10 +20,14 @@ namespace ArcGISRuntime
 {
 class Map;
 class MapQuickView;
+class Feature;
+class FeatureTable;
+class FeatureQueryResult;
 }
 }
 
 #include <QObject>
+#include <QHash>
 
 class DisplayMap : public QObject
 {
@@ -42,8 +46,13 @@ private:
     Esri::ArcGISRuntime::MapQuickView* mapView() const;
     void setMapView(Esri::ArcGISRuntime::MapQuickView* mapView);
 
+    void queryFeatures();
+    void queryFeaturesCompleted(QUuid taskId, Esri::ArcGISRuntime::FeatureQueryResult* featureQueryResult);
+
     Esri::ArcGISRuntime::Map* m_map = nullptr;
     Esri::ArcGISRuntime::MapQuickView* m_mapView = nullptr;
+    Esri::ArcGISRuntime::FeatureTable* m_featureTable = nullptr;
+    QHash<qlonglong, Esri::ArcGISRuntime::Feature*> m_features;
 };
 
 #endif // DISPLAYMAP_H
