@@ -5,6 +5,8 @@ using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Portal;
 using System.Diagnostics;
+using System.Collections.Generic;
+using Esri.ArcGISRuntime.Geometry;
 
 namespace DisplayMap
 {
@@ -16,7 +18,10 @@ namespace DisplayMap
         public MapViewModel()
         {
             InitAsync();
+            Features = new Dictionary<long, Feature>();
         }
+
+        private Dictionary<long, Feature> Features;
 
         private async void InitAsync()
         {
@@ -27,7 +32,7 @@ namespace DisplayMap
             Map.Loaded += MapLoaded;
         }
 
-        private async void MapLoaded(object sender, EventArgs e)
+        internal async void QueryFeaturesAsync()
         {
             var operationalLayers = Map.OperationalLayers;
             foreach (var layer in operationalLayers)
@@ -49,10 +54,30 @@ namespace DisplayMap
                         {
                             featureCount++;
                         }
+
+                        var objectId = (long)feature.Attributes[@"OBJECTID"];
+                        if (Features.ContainsKey(objectId))
+                        {
+                            var oldFeature = Features[objectId];
+                            if (!GeometryEngine.Equals(oldFeature.Geometry, feature.Geometry))
+                            {
+                                Features[objectId] = feature;
+                            }
+                        }
+                        else
+                        {
+                            Features.Add(objectId, feature);
+                        }
                     }
                     Debug.WriteLine(featureCount);
+                    Debug.WriteLine(Features.Count);
                 }
             }
+        }
+
+        private void MapLoaded(object sender, EventArgs e)
+        {
+            QueryFeaturesAsync();
         }
 
         private Map _map;
