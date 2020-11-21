@@ -21,6 +21,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureQueryResult;
 import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.data.QueryParameters;
+import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.layers.Layer;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
@@ -40,6 +42,8 @@ import com.esri.arcgisruntime.portal.PortalItem;
 public class DisplayMapSample extends Application {
 
   private MapView mapView;
+  private FeatureTable featureTable;
+  private Hashtable<Long, Feature> features = new Hashtable<Long, Feature>();
 
   @Override
   public void start(Stage stage) {
@@ -70,27 +74,7 @@ public class DisplayMapSample extends Application {
           if (layer instanceof FeatureLayer) {
             FeatureLayer featureLayer = (FeatureLayer)layer;
             if (0 == "Incidents of Conflict and Protest".compareTo(featureLayer.getName())) {
-              // Query the ACLED incidents
-              QueryParameters queryParams = new QueryParameters();
-              queryParams.setWhereClause("1=1");
-              
-              FeatureTable featureTable = featureLayer.getFeatureTable();
-              ListenableFuture<FeatureQueryResult> queryFuture = featureTable.queryFeaturesAsync(queryParams);
-              queryFuture.addDoneListener(() -> {
-                try {
-                  FeatureQueryResult queryResult = queryFuture.get();
-                  int featureCount = 0;
-                  for (Iterator<Feature> featureIterator = queryResult.iterator(); featureIterator.hasNext();) {
-                    Feature feature = featureIterator.next();
-                    if (!feature.getGeometry().isEmpty()) {
-                      featureCount++;
-                    }
-                  }
-                  System.out.println(featureCount);
-                } catch (Exception ex) {
-                  ex.printStackTrace();
-                }
-              });
+              featureTable = featureLayer.getFeatureTable();
             }
           }
         }
@@ -99,6 +83,9 @@ public class DisplayMapSample extends Application {
       // create a map view and set its map
       mapView = new MapView();
       mapView.setMap(map);
+      mapView.setOnMouseClicked(evt -> {
+        queryFeatures();
+      });
 
       // add the map view to stack pane
       stackPane.getChildren().addAll(mapView);
@@ -106,6 +93,43 @@ public class DisplayMapSample extends Application {
       // on any error, display the stack trace.
       e.printStackTrace();
     }
+  }
+
+  private void queryFeatures() {
+    // Query the ACLED incidents
+    QueryParameters queryParams = new QueryParameters();
+    queryParams.setWhereClause("1=1");
+
+    ListenableFuture<FeatureQueryResult> queryFuture = featureTable.queryFeaturesAsync(queryParams);
+    queryFuture.addDoneListener(() -> {
+      try {
+        FeatureQueryResult queryResult = queryFuture.get();
+        int featureCount = 0;
+        for (Iterator<Feature> featureIterator = queryResult.iterator(); featureIterator.hasNext();) {
+          Feature feature = featureIterator.next();
+          if (!feature.getGeometry().isEmpty()) {
+            featureCount++;
+          }
+
+          Long objectId = (Long)feature.getAttributes().get("OBJECTID");
+          if (features.containsKey(objectId)) {
+            Feature oldFeature = features.get(objectId);
+            if (!GeometryEngine.equals(oldFeature.getGeometry(), feature.getGeometry())) {
+              features.replace(objectId, feature);
+            }
+          }
+          else {
+            features.put(objectId, feature);
+          }
+        }
+
+        System.out.println(featureCount);
+        System.out.println(features.size());
+
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+    });
   }
 
   /**
