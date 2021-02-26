@@ -22,6 +22,7 @@
 
 #include "../App/GdeltEventLayer.h"
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QTimer>
 
@@ -77,6 +78,7 @@ void Shell::exportMapImageCompleted(QUuid taskId, QImage image)
     {
         // Emit map image exported
         qDebug() << absoluteFileName;
+        QCoreApplication::exit();
     }
 }
 
@@ -87,5 +89,5 @@ void Shell::queryGdelt()
     m_gdeltEventLayer->query();
 
     // Export map image
-    QTimer::singleShot(5000, this, &Shell::exportMapImage);
+    QTimer::singleShot(10000, this, &Shell::exportMapImage);
 }
