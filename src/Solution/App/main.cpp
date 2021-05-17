@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     // Before initializing ArcGIS Runtime, first set the
     // ArcGIS Runtime license setting required for your application.
 
-    QString licenseKeyName = "arcgisruntime.license.key";
+    QString licenseKeyName = "ARCGIS_RUNTIME_LICENSE";
     QProcessEnvironment systemEnvironment = QProcessEnvironment::systemEnvironment();
     if (systemEnvironment.contains(licenseKeyName))
     {

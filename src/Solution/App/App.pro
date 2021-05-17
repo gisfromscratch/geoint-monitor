@@ -16,7 +16,7 @@ TEMPLATE = app
 CONFIG += c++14
 
 # additional modules are pulled in via arcgisruntime.pri
-QT += opengl qml quick quickcontrols2
+QT += opengl qml quick quickcontrols2 network
 
 TARGET = GEOINTMonitor
 
@@ -29,6 +29,6 @@ equals(QT_MAJOR_VERSION, 5) {
 	}
 }
 
-ARCGIS_RUNTIME_VERSION = 100.9
+ARCGIS_RUNTIME_VERSION = 100.4
 include($$PWD/arcgisruntime.pri)
 include(GEOINTMonitor.pri)
