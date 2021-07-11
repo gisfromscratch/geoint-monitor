@@ -34,7 +34,7 @@ class Shell : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit Shell(QWidget* parent = nullptr);
+    explicit Shell(const QString& query, QWidget* parent = nullptr);
     ~Shell() override;
 
 private slots:
@@ -46,6 +46,7 @@ private:
     Esri::ArcGISRuntime::Map* m_map = nullptr;
     Esri::ArcGISRuntime::MapGraphicsView* m_mapView = nullptr;
     GdeltEventLayer* m_gdeltEventLayer = nullptr;
+    QString m_query;
 };
 
 #endif // SHELL_H

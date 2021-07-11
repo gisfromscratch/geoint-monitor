@@ -28,6 +28,12 @@ int main(int argc, char *argv[])
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication application(argc, argv);
 
+    QString query = "";
+    if (2 == argc)
+    {
+        query = argv[1];
+    }
+
     // Before initializing ArcGIS Runtime, first set the
     // ArcGIS Runtime license setting required for your application.
 
@@ -39,7 +45,7 @@ int main(int argc, char *argv[])
         ArcGISRuntimeEnvironment::setLicense(licenseKeyValue);
     }
 
-    Shell applicationWindow;
+    Shell applicationWindow(query);
     applicationWindow.setMinimumWidth(800);
     applicationWindow.setMinimumHeight(600);
     applicationWindow.setWindowState(Qt::WindowFullScreen);

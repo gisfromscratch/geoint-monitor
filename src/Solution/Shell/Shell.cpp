@@ -28,9 +28,10 @@
 
 using namespace Esri::ArcGISRuntime;
 
-Shell::Shell(QWidget* parent /*=nullptr*/):
+Shell::Shell(const QString& query, QWidget* parent /*=nullptr*/):
     QMainWindow(parent),
-    m_gdeltEventLayer(new GdeltEventLayer(this))
+    m_gdeltEventLayer(new GdeltEventLayer(this)),
+    m_query(query)
 {
 
     // Create the Widget view
@@ -84,8 +85,14 @@ void Shell::exportMapImageCompleted(QUuid taskId, QImage image)
 
 void Shell::queryGdelt()
 {
-    QString queryFiter = "theme:GENERAL_HEALTH";
-    m_gdeltEventLayer->setQueryFilter(queryFiter);
+    QString query = "theme:GENERAL_HEALTH";
+    if (!m_query.isEmpty())
+    {
+        query = m_query;
+    }
+
+    qDebug() << query;
+    m_gdeltEventLayer->setQueryFilter(query);
     m_gdeltEventLayer->query();
 
     // Export map image
